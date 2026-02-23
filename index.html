@@ -28,24 +28,24 @@
                         }
                     },
                     animation: {
-                        'blob': 'blob 10s infinite',
+                        'blob': 'blob 15s infinite',
                         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'pulse-red-glow': 'pulse-red-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                     },
                     keyframes: {
                         blob: {
                             '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '33%': { transform: 'translate(50px, -50px) scale(1.2)' },
+                            '66%': { transform: 'translate(-40px, 40px) scale(0.8)' },
                             '100%': { transform: 'translate(0px, 0px) scale(1)' },
                         },
                         'pulse-glow': {
-                            '0%, 100%': { boxShadow: '0 0 15px rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)' },
-                            '50%': { boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)', borderColor: 'rgba(16, 185, 129, 0.6)' },
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(16, 185, 129, 0.1)', borderColor: 'rgba(255, 255, 255, 0.4)' },
+                            '50%': { boxShadow: '0 0 25px rgba(16, 185, 129, 0.5)', borderColor: 'rgba(16, 185, 129, 0.7)' },
                         },
                         'pulse-red-glow': {
-                            '0%, 100%': { boxShadow: '0 0 15px rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.3)', backgroundColor: 'rgba(239, 68, 68, 0.05)' },
-                            '50%': { boxShadow: '0 0 25px rgba(239, 68, 68, 0.5)', borderColor: 'rgba(239, 68, 68, 0.8)', backgroundColor: 'rgba(239, 68, 68, 0.1)' },
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(239, 68, 68, 0.3)', borderColor: 'rgba(239, 68, 68, 0.4)', backgroundColor: 'rgba(239, 68, 68, 0.05)' },
+                            '50%': { boxShadow: '0 0 35px rgba(239, 68, 68, 0.6)', borderColor: 'rgba(239, 68, 68, 0.9)', backgroundColor: 'rgba(239, 68, 68, 0.15)' },
                         }
                     }
                 }
@@ -57,18 +57,48 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
         
         .font-mono {
             font-family: 'JetBrains Mono', monospace;
         }
 
+        /* Deep Liquid Glass Effects */
         .glass-panel {
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.7);
             transition: all 0.3s ease;
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.45);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+        }
+        .dark .glass-input {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+        .dark .glass-input:focus {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
         }
         
         ::-webkit-scrollbar { width: 6px; }
@@ -78,8 +108,8 @@
         ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.6); }
         .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
         
-        .dark .text-glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
-        .dark .text-glow-red { text-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
+        .dark .text-glow-green { text-shadow: 0 0 15px rgba(16, 185, 129, 0.7); }
+        .dark .text-glow-red { text-shadow: 0 0 15px rgba(239, 68, 68, 0.7); }
 
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
@@ -102,38 +132,40 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden relative bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-fuchsia-50">
 
-    <!-- Liquid Background Blobs -->
-    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none transition-opacity duration-500 opacity-40 dark:opacity-30">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-helios-400 dark:bg-helios-500 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] dark:blur-[100px] animate-blob"></div>
-        <div class="absolute top-[20%] right-[-10%] w-[30rem] h-[30rem] bg-teal-300 dark:bg-teal-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] dark:blur-[120px] animate-blob" style="animation-delay: 2s"></div>
-        <div class="absolute bottom-[-20%] left-[20%] w-[40rem] h-[40rem] bg-emerald-200 dark:bg-cyan-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[120px] dark:blur-[130px] animate-blob" style="animation-delay: 4s"></div>
+    <!-- Massive Liquid Background Blobs -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none transition-opacity duration-700 opacity-60 dark:opacity-40">
+        <div class="absolute top-[-15%] left-[-10%] w-[40rem] h-[40rem] bg-helios-400 dark:bg-helios-500 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[120px] dark:blur-[140px] animate-blob"></div>
+        <div class="absolute top-[10%] right-[-15%] w-[45rem] h-[45rem] bg-teal-300 dark:bg-teal-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[130px] dark:blur-[150px] animate-blob" style="animation-delay: 3s"></div>
+        <div class="absolute bottom-[-25%] left-[15%] w-[50rem] h-[50rem] bg-emerald-200 dark:bg-cyan-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[140px] dark:blur-[160px] animate-blob" style="animation-delay: 6s"></div>
     </div>
 
-    <!-- Header -->
-    <header class="glass-panel z-10 p-4 grid grid-cols-3 items-center shrink-0 bg-white/70 border-b border-slate-200 dark:bg-slate-800/40 dark:border-white/10">
+    <!-- Header mit absoluter Zentrierung für die Uhr -->
+    <header class="glass-panel z-20 p-4 flex justify-between items-center shrink-0 relative">
         <!-- Logo & Title (Left) -->
-        <div class="flex items-center gap-3 justify-start">
-            <div class="w-10 h-10 rounded-full bg-helios-100 dark:bg-helios-500/20 flex items-center justify-center border border-helios-200 dark:border-helios-400/50 shadow-sm dark:shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 shrink-0 rounded-full bg-helios-100 dark:bg-helios-500/20 flex items-center justify-center border border-helios-300 dark:border-helios-400/50 shadow-sm dark:shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                 <i class="fa-solid fa-heart-pulse text-helios-600 dark:text-helios-400 text-xl dark:text-glow-green"></i>
             </div>
-            <h1 class="text-xl font-bold tracking-tight text-slate-800 dark:text-white hidden sm:block">ER Task Radar <span class="text-helios-600 dark:text-helios-400 text-sm font-normal ml-2 tracking-widest uppercase">Helios Klinik Duisburg</span></h1>
+            <h1 class="text-xl font-bold tracking-tight text-slate-800 dark:text-white hidden md:flex items-center whitespace-nowrap">
+                ER Task Radar <span class="text-helios-600 dark:text-helios-400 text-sm font-normal ml-3 tracking-widest uppercase">Helios Klinik Duisburg</span>
+            </h1>
         </div>
         
-        <!-- Clock (Center) -->
-        <div class="flex flex-col items-center justify-center">
-            <div id="clock" class="text-3xl md:text-4xl font-bold font-mono text-helios-700 dark:text-white dark:text-glow-green tracking-tight">00:00:00</div>
-            <div id="date" class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Datum</div>
+        <!-- Clock (Absolute Center) -->
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none">
+            <div id="clock" class="text-3xl md:text-5xl font-bold font-mono text-helios-700 dark:text-white dark:text-glow-green tracking-tighter drop-shadow-md">00:00:00</div>
+            <div id="date" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 drop-shadow-sm">Datum</div>
         </div>
 
         <!-- Controls (Right) -->
-        <div class="flex items-center gap-4 justify-end">
-            <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-yellow-400 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-600 transition">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-white/50 dark:bg-slate-700/50 border border-white/60 dark:border-white/10 text-slate-600 dark:text-yellow-400 flex items-center justify-center hover:bg-white/80 dark:hover:bg-slate-600/80 transition backdrop-blur-md shadow-sm">
                 <i class="fa-solid fa-moon dark:hidden"></i>
                 <i class="fa-solid fa-sun hidden dark:block"></i>
             </button>
 
-            <button onclick="clearAllData()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 px-3 md:px-4 py-2 rounded-lg text-sm transition font-medium flex items-center gap-2">
-                <i class="fa-solid fa-power-off"></i> <span class="hidden md:inline">Shift Reset</span>
+            <button onclick="clearAllData()" class="bg-white/50 dark:bg-slate-700/50 hover:bg-red-50 dark:hover:bg-red-900/40 border border-white/60 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 px-4 py-2 rounded-lg text-sm transition font-medium flex items-center gap-2 backdrop-blur-md shadow-sm">
+                <i class="fa-solid fa-power-off"></i> <span class="hidden lg:inline">Shift Reset</span>
             </button>
         </div>
     </header>
@@ -143,19 +175,18 @@
         
         <!-- Column 1: Timers -->
         <div class="flex flex-col gap-4 h-full">
-            <div class="glass-panel rounded-2xl flex flex-col max-h-full bg-white/70 border border-slate-200 dark:bg-slate-800/40 dark:border-white/10">
-                <div class="p-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
-                    <h2 class="font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
+            <div class="glass-panel rounded-2xl flex flex-col max-h-full overflow-hidden">
+                <div class="p-4 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/20 dark:bg-transparent">
+                    <h2 class="font-bold flex items-center gap-2 text-slate-800 dark:text-white drop-shadow-sm">
                         <i class="fa-solid fa-stopwatch text-helios-600 dark:text-helios-400"></i> Aktive Timer
                     </h2>
                 </div>
                 
                 <!-- Quick Add Timer Form -->
-                <div class="p-4 border-b border-slate-200 dark:border-white/10 space-y-3 bg-slate-50/50 dark:bg-white/5">
-                    <input type="text" id="timerPatient" placeholder="Patient / Zimmer / Bett" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-helios-500 focus:ring-1 focus:ring-helios-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white dark:focus:border-helios-400 transition">
+                <div class="p-4 border-b border-white/40 dark:border-white/10 space-y-3 bg-white/10 dark:bg-white/5">
+                    <input type="text" id="timerPatient" placeholder="Patient / Zimmer / Bett" class="w-full text-sm p-2.5 rounded-lg glass-input outline-none text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
                     
-                    <!-- Freetext / Datalist Combo für Tasks -->
-                    <input list="taskOptions" id="timerTask" placeholder="Was? (z.B. Labor, Re-Eval)" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-helios-500 focus:ring-1 focus:ring-helios-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white dark:focus:border-helios-400 transition">
+                    <input list="taskOptions" id="timerTask" placeholder="Was? (z.B. Labor, Re-Eval)" class="w-full text-sm p-2.5 rounded-lg glass-input outline-none text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
                     <datalist id="taskOptions">
                         <option value="Labor (allg.)">
                         <option value="Troponin">
@@ -170,16 +201,16 @@
                     </datalist>
                     
                     <div class="flex gap-2">
-                        <button onclick="addTimer(20)" class="flex-1 bg-white dark:bg-white/5 hover:bg-helios-50 dark:hover:bg-helios-500/20 text-slate-600 dark:text-slate-300 hover:text-helios-700 dark:hover:text-white text-xs py-2 rounded-lg border border-slate-200 dark:border-white/10 transition font-medium">20m</button>
-                        <button onclick="addTimer(45)" class="flex-1 bg-white dark:bg-white/5 hover:bg-helios-50 dark:hover:bg-helios-500/20 text-slate-600 dark:text-slate-300 hover:text-helios-700 dark:hover:text-white text-xs py-2 rounded-lg border border-slate-200 dark:border-white/10 transition font-medium">45m</button>
-                        <button onclick="addTimer(60)" class="flex-1 bg-white dark:bg-white/5 hover:bg-helios-50 dark:hover:bg-helios-500/20 text-slate-600 dark:text-slate-300 hover:text-helios-700 dark:hover:text-white text-xs py-2 rounded-lg border border-slate-200 dark:border-white/10 transition font-medium">60m</button>
-                        <input type="number" id="timerCustom" placeholder="Min" class="w-16 text-sm p-2 rounded-lg bg-white border border-slate-200 outline-none text-center dark:bg-slate-900/60 dark:border-white/10 dark:text-white">
-                        <button onclick="addCustomTimer()" class="bg-helios-600 hover:bg-helios-700 text-white dark:bg-helios-500/30 dark:hover:bg-helios-500/50 dark:border dark:border-helios-400 dark:text-helios-400 dark:hover:text-white px-3 py-1 rounded-lg transition shadow-sm dark:shadow-[0_0_10px_rgba(16,185,129,0.2)]"><i class="fa-solid fa-plus"></i></button>
+                        <button onclick="addTimer(20)" class="flex-1 glass-input hover:bg-white/80 dark:hover:bg-helios-500/20 text-slate-700 dark:text-slate-300 hover:text-helios-700 dark:hover:text-white text-xs py-2 rounded-lg transition font-bold shadow-sm">20m</button>
+                        <button onclick="addTimer(45)" class="flex-1 glass-input hover:bg-white/80 dark:hover:bg-helios-500/20 text-slate-700 dark:text-slate-300 hover:text-helios-700 dark:hover:text-white text-xs py-2 rounded-lg transition font-bold shadow-sm">45m</button>
+                        <button onclick="addTimer(60)" class="flex-1 glass-input hover:bg-white/80 dark:hover:bg-helios-500/20 text-slate-700 dark:text-slate-300 hover:text-helios-700 dark:hover:text-white text-xs py-2 rounded-lg transition font-bold shadow-sm">60m</button>
+                        <input type="number" id="timerCustom" placeholder="Min" class="w-16 text-sm p-2 rounded-lg glass-input outline-none text-center text-slate-800 dark:text-white shadow-sm">
+                        <button onclick="addCustomTimer()" class="bg-helios-600 hover:bg-helios-500 text-white dark:bg-helios-500/40 dark:hover:bg-helios-500/60 dark:border dark:border-helios-400/50 dark:text-white px-3 py-1 rounded-lg transition shadow-md dark:shadow-[0_0_15px_rgba(16,185,129,0.3)]"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
 
                 <!-- Timer List -->
-                <div id="timerList" class="p-4 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
+                <div id="timerList" class="p-4 overflow-y-auto flex-1 space-y-4 custom-scrollbar bg-white/5 dark:bg-transparent">
                     <!-- Timers injected here -->
                 </div>
             </div>
@@ -187,18 +218,17 @@
 
         <!-- Column 2: Transports -->
         <div class="flex flex-col gap-4 h-full">
-            <div class="glass-panel rounded-2xl flex flex-col max-h-full bg-white/70 border border-slate-200 dark:bg-slate-800/40 dark:border-white/10">
-                <div class="p-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
-                    <h2 class="font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
+            <div class="glass-panel rounded-2xl flex flex-col max-h-full overflow-hidden">
+                <div class="p-4 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/20 dark:bg-transparent">
+                    <h2 class="font-bold flex items-center gap-2 text-slate-800 dark:text-white drop-shadow-sm">
                         <i class="fa-solid fa-bed-pulse text-indigo-500 dark:text-indigo-400"></i> Transport Radar
                     </h2>
                 </div>
                 
-                <div class="p-4 border-b border-slate-200 dark:border-white/10 space-y-3 bg-slate-50/50 dark:bg-white/5">
-                    <input type="text" id="transPatient" placeholder="Patient / Zimmer" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white transition">
+                <div class="p-4 border-b border-white/40 dark:border-white/10 space-y-3 bg-white/10 dark:bg-white/5">
+                    <input type="text" id="transPatient" placeholder="Patient / Zimmer" class="w-full text-sm p-2.5 rounded-lg glass-input outline-none text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
                     <div class="flex gap-2">
-                        <!-- Freetext / Datalist Combo -->
-                        <input list="zielOptions" id="transZiel" placeholder="Ziel..." class="flex-1 w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white font-medium transition">
+                        <input list="zielOptions" id="transZiel" placeholder="Ziel..." class="flex-1 w-full text-sm p-2.5 rounded-lg glass-input outline-none text-slate-800 dark:text-white font-medium placeholder-slate-400 dark:placeholder-slate-500">
                         <datalist id="zielOptions">
                             <option value="Entlassung / Heim">
                             <option value="Rücktransport">
@@ -211,12 +241,12 @@
                             <option value="Herzkatheter">
                         </datalist>
 
-                        <input type="time" id="transTime" title="Ziel-Uhrzeit (leer = sofort)" class="w-26 text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-center dark:bg-slate-900/60 dark:border-white/10 dark:text-white">
+                        <input type="time" id="transTime" title="Ziel-Uhrzeit (leer = sofort)" class="w-26 text-sm p-2.5 rounded-lg glass-input outline-none text-center text-slate-800 dark:text-white">
                     </div>
-                    <button onclick="addTransport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-500/20 dark:hover:bg-indigo-500/40 dark:border dark:border-indigo-400/50 dark:text-indigo-300 dark:hover:text-white text-sm py-2.5 rounded-lg transition font-medium shadow-sm dark:shadow-[0_0_10px_rgba(99,102,241,0.2)]"><i class="fa-solid fa-truck-medical mr-2"></i> Transport anlegen</button>
+                    <button onclick="addTransport()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white dark:bg-indigo-500/30 dark:hover:bg-indigo-500/50 dark:border dark:border-indigo-400/50 dark:text-white text-sm py-2.5 rounded-lg transition font-bold shadow-md dark:shadow-[0_0_15px_rgba(99,102,241,0.3)]"><i class="fa-solid fa-truck-medical mr-2"></i> Transport anlegen</button>
                 </div>
 
-                <div id="transportList" class="p-4 overflow-y-auto flex-1 space-y-3 custom-scrollbar">
+                <div id="transportList" class="p-4 overflow-y-auto flex-1 space-y-3 custom-scrollbar bg-white/5 dark:bg-transparent">
                     <!-- Transports injected here -->
                 </div>
             </div>
@@ -224,74 +254,73 @@
 
         <!-- Column 3: Vitals Dropzone -->
         <div class="flex flex-col gap-4 h-full lg:col-span-1">
-            <div class="glass-panel rounded-2xl flex flex-col max-h-full bg-white/70 border border-slate-200 dark:bg-slate-800/40 dark:border-white/10">
-                <div class="p-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
-                    <h2 class="font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
-                        <i class="fa-solid fa-heartbeat text-pink-500"></i> Vital Zwischenablage
+            <div class="glass-panel rounded-2xl flex flex-col max-h-full overflow-hidden">
+                <div class="p-4 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/20 dark:bg-transparent">
+                    <h2 class="font-bold flex items-center gap-2 text-slate-800 dark:text-white drop-shadow-sm">
+                        <i class="fa-solid fa-heartbeat text-pink-500 dark:text-pink-400"></i> Vital Zwischenablage
                     </h2>
                 </div>
                 
-                <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scrollbar bg-white/5 dark:bg-transparent">
                     <div>
-                        <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">Patienten Info optional</label>
-                        <input type="text" id="vitPatient" placeholder="Name oder Raum" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white transition">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">Patienten Info optional</label>
+                        <input type="text" id="vitPatient" placeholder="Name oder Raum" class="w-full text-sm p-2.5 rounded-lg glass-input outline-none text-slate-800 dark:text-white placeholder-slate-400">
                     </div>
                     
-                    <!-- ALLERGY FIELD -->
                     <div>
-                        <label class="text-xs font-bold text-red-500 dark:text-red-400 mb-1.5 block uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation"></i> Allergien</label>
-                        <input type="text" id="vitAllergies" placeholder="Keine bekannt / Penicillin..." class="w-full text-sm p-2.5 rounded-lg bg-red-50/50 border border-red-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none dark:bg-red-900/10 dark:border-red-500/30 dark:text-white transition">
+                        <label class="text-xs font-bold text-red-500 dark:text-red-400 mb-1.5 block uppercase tracking-widest drop-shadow-sm"><i class="fa-solid fa-triangle-exclamation"></i> Allergien</label>
+                        <input type="text" id="vitAllergies" placeholder="Keine bekannt / Penicillin..." class="w-full text-sm p-2.5 rounded-lg bg-red-50/50 dark:bg-red-900/20 border border-red-300 dark:border-red-500/40 focus:border-red-500 outline-none text-slate-800 dark:text-white backdrop-blur-md shadow-sm transition placeholder-red-300 dark:placeholder-red-400/50">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">RR mmHg</label>
-                            <input type="text" id="vitRR" placeholder="120/80" class="w-full text-lg font-mono p-2.5 rounded-lg bg-white border border-slate-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none text-center text-helios-600 dark:text-helios-400 dark:bg-slate-900/60 dark:border-white/10 transition">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">RR mmHg</label>
+                            <input type="text" id="vitRR" placeholder="120/80" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
                         </div>
                         <div>
-                            <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">HF /min</label>
-                            <input type="number" id="vitHF" placeholder="80" class="w-full text-lg font-mono p-2.5 rounded-lg bg-white border border-slate-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none text-center text-helios-600 dark:text-helios-400 dark:bg-slate-900/60 dark:border-white/10 transition">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">HF /min</label>
+                            <input type="number" id="vitHF" placeholder="80" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
                         </div>
                         <div>
-                            <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">SpO2 %</label>
-                            <input type="number" id="vitSpO2" placeholder="98" class="w-full text-lg font-mono p-2.5 rounded-lg bg-white border border-slate-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none text-center text-helios-600 dark:text-helios-400 dark:bg-slate-900/60 dark:border-white/10 transition">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">SpO2 %</label>
+                            <input type="number" id="vitSpO2" placeholder="98" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
                         </div>
                         <div>
-                            <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">Temp °C</label>
-                            <input type="number" step="0.1" id="vitTemp" placeholder="37.0" class="w-full text-lg font-mono p-2.5 rounded-lg bg-white border border-slate-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none text-center text-helios-600 dark:text-helios-400 dark:bg-slate-900/60 dark:border-white/10 transition">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">Temp °C</label>
+                            <input type="number" step="0.1" id="vitTemp" placeholder="37.0" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
                         </div>
                     </div>
                     <div>
-                        <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">GCS / BZ / Sonstiges</label>
-                        <input type="text" id="vitMisc" placeholder="BZ 120, GCS 15..." class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white transition">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">GCS / BZ / Sonstiges</label>
+                        <input type="text" id="vitMisc" placeholder="BZ 120, GCS 15..." class="w-full text-sm p-2.5 rounded-lg glass-input outline-none text-slate-800 dark:text-white placeholder-slate-400">
                     </div>
                     
-                    <div class="pt-2 flex gap-2">
-                        <button onclick="copyVitals()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white dark:bg-white/10 dark:hover:bg-white/20 dark:border dark:border-white/20 py-2.5 rounded-lg transition font-medium text-sm flex justify-center items-center gap-2 shadow-sm">
-                            <i class="fa-regular fa-copy"></i> Vitals Kopieren
+                    <div class="pt-2 flex gap-3">
+                        <button onclick="copyVitals()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white dark:bg-white/10 dark:hover:bg-white/20 dark:border dark:border-white/30 py-2.5 rounded-lg transition font-bold text-sm flex justify-center items-center gap-2 shadow-md backdrop-blur-md">
+                            <i class="fa-regular fa-copy"></i> Kopieren
                         </button>
-                        <button onclick="clearVitals()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:border dark:border-red-500/30 dark:text-red-400 px-4 py-2.5 rounded-lg transition">
+                        <button onclick="clearVitals()" class="glass-input hover:bg-red-50 dark:hover:bg-red-900/40 text-slate-700 hover:text-red-600 dark:text-red-400 px-4 py-2.5 rounded-lg transition shadow-sm">
                             <i class="fa-solid fa-eraser"></i>
                         </button>
                     </div>
-                    <div id="copyToast" class="hidden text-center text-xs font-medium text-helios-600 bg-helios-100 border border-helios-200 dark:text-helios-400 dark:bg-helios-500/10 dark:border-helios-500/20 p-2 rounded-lg mt-2">Kopiert für Orbis!</div>
+                    <div id="copyToast" class="hidden text-center text-xs font-bold text-helios-700 bg-helios-100/80 border border-helios-300 dark:text-helios-300 dark:bg-helios-500/20 dark:border-helios-400/50 p-2.5 rounded-lg mt-2 backdrop-blur-md shadow-lg">Kopiert für Orbis!</div>
                 </div>
             </div>
         </div>
 
         <!-- Column 4: Task List -->
         <div class="flex flex-col gap-4 h-full lg:col-span-1">
-            <div class="glass-panel rounded-2xl flex flex-col h-full bg-white/70 border border-slate-200 dark:bg-slate-800/40 dark:border-white/10">
-                <div class="p-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
-                    <h2 class="font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
+            <div class="glass-panel rounded-2xl flex flex-col h-full overflow-hidden">
+                <div class="p-4 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/20 dark:bg-transparent">
+                    <h2 class="font-bold flex items-center gap-2 text-slate-800 dark:text-white drop-shadow-sm">
                         <i class="fa-solid fa-list-check text-amber-500 dark:text-amber-400"></i> Checkliste
                     </h2>
-                    <span class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest bg-slate-200 dark:bg-white/5 px-2 py-1 rounded">Auto Save</span>
+                    <span class="text-[10px] text-slate-600 dark:text-slate-300 font-bold uppercase tracking-widest bg-white/40 dark:bg-white/10 px-2 py-1 rounded backdrop-blur-sm border border-white/50 dark:border-white/10">Auto Save</span>
                 </div>
-                <div class="p-4 flex-1 flex flex-col overflow-hidden">
+                <div class="p-4 flex-1 flex flex-col overflow-hidden bg-white/5 dark:bg-transparent">
                     <div class="flex gap-2 mb-4">
-                        <input type="text" id="newTaskInput" placeholder="Neue Aufgabe..." class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white transition" onkeypress="if(event.key === 'Enter') addTask()">
-                        <button onclick="addTask()" class="bg-amber-500 hover:bg-amber-600 text-white dark:bg-amber-500/30 dark:hover:bg-amber-500/50 dark:border dark:border-amber-500/50 px-4 rounded-lg transition shadow-sm"><i class="fa-solid fa-plus"></i></button>
+                        <input type="text" id="newTaskInput" placeholder="Neue Aufgabe..." class="w-full text-sm p-2.5 rounded-lg glass-input outline-none text-slate-800 dark:text-white placeholder-slate-400" onkeypress="if(event.key === 'Enter') addTask()">
+                        <button onclick="addTask()" class="bg-amber-500 hover:bg-amber-400 text-white dark:bg-amber-500/40 dark:hover:bg-amber-500/60 dark:border dark:border-amber-400/50 px-4 rounded-lg transition font-bold shadow-md dark:shadow-[0_0_15px_rgba(245,158,11,0.2)]"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <div id="taskList" class="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-1 mb-2 pb-4">
                         <!-- Tasks injected here -->
@@ -309,6 +338,17 @@
             transports: [],
             tasks: [] 
         };
+
+        // Audio Setup for Gong
+        // Ein klarer, professioneller Gong / Notification Sound
+        const gongAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        gongAudio.volume = 0.8;
+
+        function playGong() {
+            gongAudio.play().catch(err => {
+                console.log("Audio Playback blockiert durch Browser Policy. Klicke einmal auf die Seite, um Sounds zu aktivieren.", err);
+            });
+        }
 
         // Theme Toggle Logic
         function toggleTheme() {
@@ -375,6 +415,9 @@
                 
                 if (timer.isOverdue !== wasOverdue) {
                     needsRender = true;
+                    if (timer.isOverdue) {
+                        playGong();
+                    }
                 }
             });
             
@@ -435,7 +478,7 @@
             list.innerHTML = '';
             
             if(appData.timers.length === 0) {
-                list.innerHTML = '<div class="text-center text-slate-500 dark:text-slate-500 text-sm py-8 font-mono">Keine aktiven Timer</div>';
+                list.innerHTML = '<div class="text-center text-slate-500 dark:text-slate-400 text-sm py-8 font-mono font-bold">Keine aktiven Timer</div>';
                 return;
             }
 
@@ -450,36 +493,36 @@
             sortedTimers.forEach(timer => {
                 const el = document.createElement('div');
                 
-                const baseClasses = "p-4 rounded-xl relative transition-all duration-300 border overflow-hidden shadow-sm";
+                const baseClasses = "p-4 rounded-xl relative transition-all duration-300 overflow-hidden shadow-sm backdrop-blur-md border";
                 const stateClasses = timer.isOverdue 
-                    ? "bg-red-50 border-red-300 dark:bg-red-900/20 dark:border-red-500/50 animate-pulse-red-glow" 
-                    : "bg-white border-slate-200 dark:bg-white/5 dark:border-helios-400/30 dark:animate-pulse-glow";
+                    ? "bg-red-100/60 border-red-300 dark:bg-red-900/40 dark:border-red-500/60 animate-pulse-red-glow" 
+                    : "bg-white/60 border-white/80 dark:bg-slate-800/60 dark:border-white/20 dark:animate-pulse-glow";
                 
                 el.className = `${baseClasses} ${stateClasses}`;
                 
                 el.innerHTML = `
                     <div class="flex justify-between items-start mb-2 relative z-10">
                         <div>
-                            <div class="font-bold text-sm text-slate-800 dark:text-white">${timer.patient}</div>
-                            <div class="text-xs font-semibold text-helios-600 dark:text-helios-400 mt-0.5 uppercase tracking-wide">${timer.task}</div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white drop-shadow-sm">${timer.patient}</div>
+                            <div class="text-xs font-bold text-helios-700 dark:text-helios-400 mt-0.5 uppercase tracking-wide">${timer.task}</div>
                         </div>
-                        <button onclick="deleteTimer(${timer.id})" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-white/10"><i class="fa-solid fa-times"></i></button>
+                        <button onclick="deleteTimer(${timer.id})" class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 dark:hover:bg-white/20"><i class="fa-solid fa-times"></i></button>
                     </div>
                     
                     <div class="flex justify-between items-end mt-4 relative z-10">
-                        <div class="text-xs font-mono px-2 py-1 rounded bg-slate-100 text-slate-600 dark:bg-black/30 dark:text-slate-300 dark:border dark:border-white/10">
+                        <div class="text-xs font-mono font-bold px-2 py-1 rounded bg-white/60 text-slate-700 border border-white/80 dark:bg-black/40 dark:text-slate-200 dark:border-white/10 shadow-sm">
                             Ziel: ${timer.durationMs / 60000}m
                         </div>
-                        <div class="font-mono font-bold text-2xl tracking-wider timer-display ${timer.isOverdue ? 'text-red-600 dark:text-red-400 dark:text-glow-red' : 'text-helios-600 dark:text-helios-400 dark:text-glow-green'}" data-id="${timer.id}">
+                        <div class="font-mono font-bold text-3xl tracking-wider timer-display drop-shadow-sm ${timer.isOverdue ? 'text-red-700 dark:text-red-400 dark:text-glow-red' : 'text-helios-700 dark:text-helios-400 dark:text-glow-green'}" data-id="${timer.id}">
                             --:--
                         </div>
                     </div>
                     
                     ${!timer.isOverdue ? `
-                    <div class="absolute bottom-0 left-0 h-1 bg-slate-100 dark:bg-helios-500/20 w-full">
-                        <div class="bg-helios-500 dark:bg-helios-400 h-full progress-bar dark:shadow-[0_0_10px_rgba(16,185,129,0.8)] transition-all duration-1000 ease-linear" data-id="${timer.id}"></div>
+                    <div class="absolute bottom-0 left-0 h-1.5 bg-slate-200/50 dark:bg-helios-900/50 w-full">
+                        <div class="bg-helios-500 dark:bg-helios-400 h-full progress-bar shadow-[0_0_10px_rgba(16,185,129,0.8)] transition-all duration-1000 ease-linear" data-id="${timer.id}"></div>
                     </div>` : `
-                    <div class="absolute bottom-0 left-0 h-1 bg-red-500 w-full dark:shadow-[0_0_15px_rgba(239,68,68,1)]"></div>
+                    <div class="absolute bottom-0 left-0 h-1.5 bg-red-500 w-full shadow-[0_0_15px_rgba(239,68,68,1)]"></div>
                     `}
                 `;
                 list.appendChild(el);
@@ -511,26 +554,24 @@
 
             // Update Transport Timers
             appData.transports.forEach(t => {
-                if (t.status === 'done') return; // Don't tick if done
+                if (t.status === 'done') return;
                 
                 const display = document.querySelector(`.trans-timer-display[data-id="${t.id}"]`);
                 if(display) {
                     if (t.isAsap) {
-                        // Count up from creation time
                         const elapsed = now - t.targetMs;
                         display.innerText = "+" + formatTimeDiff(elapsed);
-                        display.classList.add('text-red-500', 'dark:text-red-400');
+                        display.classList.add('text-red-600', 'dark:text-red-400');
                     } else {
-                        // Countdown to targetMs
                         const diff = t.targetMs - now;
                         if(diff <= 0) {
                             display.innerText = "+" + formatTimeDiff(Math.abs(diff));
-                            display.classList.add('text-red-500', 'dark:text-red-400');
-                            display.classList.remove('text-indigo-600', 'dark:text-indigo-400');
+                            display.classList.add('text-red-600', 'dark:text-red-400');
+                            display.classList.remove('text-indigo-700', 'dark:text-indigo-400');
                         } else {
                             display.innerText = formatTimeDiff(diff);
-                            display.classList.remove('text-red-500', 'dark:text-red-400');
-                            display.classList.add('text-indigo-600', 'dark:text-indigo-400');
+                            display.classList.remove('text-red-600', 'dark:text-red-400');
+                            display.classList.add('text-indigo-700', 'dark:text-indigo-400');
                         }
                     }
                 }
@@ -556,7 +597,6 @@
                 const d = new Date();
                 d.setHours(parseInt(hours), parseInt(mins), 0, 0);
                 targetMs = d.getTime();
-                // If the selected time was earlier today, we still track it (it will just be overdue immediately)
             } else {
                 targetMs = Date.now();
                 isAsap = true;
@@ -601,48 +641,47 @@
             list.innerHTML = '';
             
             if(appData.transports.length === 0) {
-                list.innerHTML = '<div class="text-center text-slate-500 dark:text-slate-500 text-sm py-8 font-mono">Keine Transporte disponiert</div>';
+                list.innerHTML = '<div class="text-center text-slate-500 dark:text-slate-400 text-sm py-8 font-mono font-bold">Keine Transporte disponiert</div>';
                 return;
             }
 
             appData.transports.forEach(t => {
-                let statusColor = "bg-white border-slate-200 text-slate-700 dark:bg-white/5 dark:border-white/10 dark:text-slate-300";
-                let badgeColor = "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-white/10";
+                let statusColor = "bg-white/60 border-white/80 text-slate-800 dark:bg-slate-800/60 dark:border-white/20 dark:text-slate-200";
+                let badgeColor = "bg-white/80 text-slate-700 border-slate-300 dark:bg-black/40 dark:text-slate-300 dark:border-white/10";
                 
                 if(t.status === 'progress') { 
-                    statusColor = "bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-100 dark:shadow-[0_0_15px_rgba(245,158,11,0.1)]"; 
-                    badgeColor = "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/50";
+                    statusColor = "bg-amber-100/60 border-amber-300 text-amber-900 dark:bg-amber-900/40 dark:border-amber-500/50 dark:text-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.2)]"; 
+                    badgeColor = "bg-amber-200/80 text-amber-800 border-amber-400 dark:bg-amber-800/60 dark:text-amber-200 dark:border-amber-400/50";
                 }
                 if(t.status === 'done') { 
-                    statusColor = "bg-helios-50 border-helios-200 text-helios-800 opacity-70 dark:bg-helios-500/10 dark:border-helios-500/30 dark:text-helios-100 dark:opacity-60"; 
-                    badgeColor = "bg-helios-100 text-helios-700 border-helios-200 dark:bg-helios-500/20 dark:text-helios-300 dark:border-helios-500/50";
+                    statusColor = "bg-helios-100/50 border-helios-300 text-helios-900 opacity-70 dark:bg-helios-900/30 dark:border-helios-500/30 dark:text-helios-100 dark:opacity-60"; 
+                    badgeColor = "bg-helios-200/80 text-helios-800 border-helios-400 dark:bg-helios-800/50 dark:text-helios-300 dark:border-helios-500/50";
                 }
 
                 const el = document.createElement('div');
-                el.className = `p-3 rounded-xl border flex flex-col gap-2 transition-all duration-300 shadow-sm ${statusColor}`;
+                el.className = `p-3 rounded-xl border flex flex-col gap-2 transition-all duration-300 shadow-sm backdrop-blur-md ${statusColor}`;
                 
-                // Show timer only if not done
                 const timerHtml = t.status !== 'done' 
-                    ? `<div class="font-mono text-sm font-bold trans-timer-display" data-id="${t.id}">--:--</div>` 
-                    : `<div class="font-mono text-sm font-bold text-slate-400">Erledigt</div>`;
+                    ? `<div class="font-mono text-sm font-bold trans-timer-display drop-shadow-sm" data-id="${t.id}">--:--</div>` 
+                    : `<div class="font-mono text-sm font-bold text-slate-500 dark:text-slate-400">Erledigt</div>`;
 
                 el.innerHTML = `
                     <div class="flex justify-between items-start">
-                        <div class="font-bold text-sm text-slate-800 dark:text-white">${t.patient}</div>
+                        <div class="font-bold text-sm drop-shadow-sm">${t.patient}</div>
                         <div class="flex items-center gap-2">
                             ${timerHtml}
-                            <div class="font-mono text-xs font-bold px-2 py-0.5 rounded border ${badgeColor}">${t.timeString}</div>
+                            <div class="font-mono text-xs font-bold px-2 py-0.5 rounded border shadow-sm ${badgeColor}">${t.timeString}</div>
                         </div>
                     </div>
-                    <div class="text-sm font-medium opacity-80 mt-1"><i class="fa-solid fa-location-dot mr-1.5"></i> ${t.ziel}</div>
+                    <div class="text-sm font-bold opacity-90 mt-1"><i class="fa-solid fa-location-dot mr-1.5"></i> ${t.ziel}</div>
                     
-                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-black/5 dark:border-white/10">
+                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-black/10 dark:border-white/10">
                         <div class="flex gap-1">
-                            ${t.status !== 'waiting' ? `<button onclick="updateTransportStatus(${t.id}, 'waiting')" class="text-xs w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-500 dark:bg-black/20 dark:hover:bg-slate-700 dark:border-white/10 dark:text-slate-400 transition" title="Wartet"><i class="fa-regular fa-clock"></i></button>` : ''}
-                            ${t.status !== 'progress' ? `<button onclick="updateTransportStatus(${t.id}, 'progress')" class="text-xs w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-200 text-amber-600 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 dark:border-amber-500/30 dark:text-amber-400 transition" title="Unterwegs"><i class="fa-solid fa-person-walking-arrow-right"></i></button>` : ''}
-                            ${t.status !== 'done' ? `<button onclick="updateTransportStatus(${t.id}, 'done')" class="text-xs w-8 h-8 rounded-lg bg-helios-100 hover:bg-helios-200 border border-helios-200 text-helios-600 dark:bg-helios-500/10 dark:hover:bg-helios-500/20 dark:border-helios-500/30 dark:text-helios-400 transition" title="Erledigt"><i class="fa-solid fa-check"></i></button>` : ''}
+                            ${t.status !== 'waiting' ? `<button onclick="updateTransportStatus(${t.id}, 'waiting')" class="text-xs w-8 h-8 rounded-lg bg-white/60 hover:bg-white border border-white/80 text-slate-600 dark:bg-black/30 dark:hover:bg-slate-700 dark:border-white/20 dark:text-slate-300 transition shadow-sm" title="Wartet"><i class="fa-regular fa-clock"></i></button>` : ''}
+                            ${t.status !== 'progress' ? `<button onclick="updateTransportStatus(${t.id}, 'progress')" class="text-xs w-8 h-8 rounded-lg bg-amber-200/60 hover:bg-amber-300 border border-amber-300 text-amber-700 dark:bg-amber-500/30 dark:hover:bg-amber-500/50 dark:border-amber-500/40 dark:text-amber-300 transition shadow-sm" title="Unterwegs"><i class="fa-solid fa-person-walking-arrow-right"></i></button>` : ''}
+                            ${t.status !== 'done' ? `<button onclick="updateTransportStatus(${t.id}, 'done')" class="text-xs w-8 h-8 rounded-lg bg-helios-200/60 hover:bg-helios-300 border border-helios-300 text-helios-700 dark:bg-helios-500/30 dark:hover:bg-helios-500/50 dark:border-helios-500/40 dark:text-helios-300 transition shadow-sm" title="Erledigt"><i class="fa-solid fa-check"></i></button>` : ''}
                         </div>
-                        <button onclick="deleteTransport(${t.id})" class="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteTransport(${t.id})" class="text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/50 dark:hover:bg-white/10"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
                 list.appendChild(el);
@@ -726,7 +765,6 @@
                 const task = appData.tasks[index];
                 task.done = !task.done;
                 
-                // Remove task and push to end if done, or shift to top if undone
                 appData.tasks.splice(index, 1);
                 if (task.done) {
                     appData.tasks.push(task);
@@ -754,7 +792,7 @@
         }
 
         function handleDragOver(e) {
-            e.preventDefault(); // Necessary to allow dropping
+            e.preventDefault(); 
             e.dataTransfer.dropEffect = 'move';
             return false;
         }
@@ -800,26 +838,25 @@
             list.innerHTML = '';
             
             if(appData.tasks.length === 0) {
-                list.innerHTML = '<div class="text-center text-slate-500 dark:text-slate-500 text-sm py-4 font-mono">Keine Aufgaben</div>';
+                list.innerHTML = '<div class="text-center text-slate-500 dark:text-slate-400 text-sm py-4 font-mono font-bold">Keine Aufgaben</div>';
                 return;
             }
 
             appData.tasks.forEach(task => {
                 const el = document.createElement('div');
                 const textStyle = task.done 
-                    ? "line-through text-slate-400 dark:text-slate-500" 
-                    : "text-slate-700 dark:text-slate-200";
+                    ? "line-through text-slate-500 dark:text-slate-500" 
+                    : "text-slate-800 dark:text-slate-100 font-medium";
                 const bgStyle = task.done 
-                    ? "bg-slate-50/50 dark:bg-white/5 opacity-70 border-transparent" 
-                    : "bg-white dark:bg-slate-900/40 border-slate-200 dark:border-white/10 shadow-sm cursor-grab active:cursor-grabbing";
+                    ? "bg-white/30 dark:bg-white/5 opacity-60 border-white/40 dark:border-white/10" 
+                    : "bg-white/70 dark:bg-slate-800/60 border-white/80 dark:border-white/20 shadow-sm cursor-grab active:cursor-grabbing backdrop-blur-md";
                 const checkIcon = task.done 
-                    ? "<i class='fa-solid fa-circle-check text-helios-500 dark:text-helios-400'></i>" 
-                    : "<i class='fa-regular fa-circle text-slate-300 dark:text-slate-500'></i>";
+                    ? "<i class='fa-solid fa-circle-check text-helios-600 dark:text-helios-400'></i>" 
+                    : "<i class='fa-regular fa-circle text-slate-400 dark:text-slate-400'></i>";
 
                 el.className = `task-item flex items-center gap-3 p-3 rounded-lg border ${bgStyle}`;
                 el.dataset.id = task.id;
                 
-                // Only make undone items draggable
                 if (!task.done) {
                     el.draggable = true;
                     el.addEventListener('dragstart', handleDragStart);
@@ -831,12 +868,12 @@
                 }
 
                 el.innerHTML = `
-                    ${!task.done ? `<div class="text-slate-300 dark:text-slate-600 cursor-grab hover:text-slate-400"><i class="fa-solid fa-grip-vertical"></i></div>` : `<div class="w-2"></div>`}
-                    <button onclick="toggleTask(${task.id})" class="text-xl flex-shrink-0 hover:scale-110 transition-transform">
+                    ${!task.done ? `<div class="text-slate-400 dark:text-slate-500 cursor-grab hover:text-slate-600 transition"><i class="fa-solid fa-grip-vertical"></i></div>` : `<div class="w-2"></div>`}
+                    <button onclick="toggleTask(${task.id})" class="text-xl flex-shrink-0 hover:scale-110 transition-transform drop-shadow-sm">
                         ${checkIcon}
                     </button>
-                    <span class="flex-1 text-sm ${textStyle} transition-all">${task.text}</span>
-                    <button onclick="deleteTask(${task.id})" class="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 flex-shrink-0 transition-colors">
+                    <span class="flex-1 text-sm ${textStyle} transition-all drop-shadow-sm">${task.text}</span>
+                    <button onclick="deleteTask(${task.id})" class="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400 flex-shrink-0 transition-colors rounded hover:bg-white/50 dark:hover:bg-white/10 p-1">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 `;
