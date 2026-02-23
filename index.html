@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script>
-        // Check local storage for theme preference before rendering to prevent flashing
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -23,15 +22,15 @@
                             50: '#ecfdf5',
                             100: '#d1fae5',
                             400: '#34d399',
-                            500: '#10b981', /* Emerald 500 */
-                            600: '#059669', /* Emerald 600 */
+                            500: '#10b981', 
+                            600: '#059669', 
                             700: '#047857',
                         }
                     },
                     animation: {
                         'blob': 'blob 10s infinite',
                         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'pulse-red-glow': 'pulse-red-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'pulse-red-glow': 'pulse-red-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                     },
                     keyframes: {
                         blob: {
@@ -65,7 +64,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Glassmorphism Utilities */
         .glass-panel {
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -73,7 +71,6 @@
             transition: all 0.3s ease;
         }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 10px; }
@@ -81,15 +78,25 @@
         ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.6); }
         .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
         
-        /* Neon text */
         .dark .text-glow-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
         .dark .text-glow-red { text-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
 
-        /* Hide number input spinners */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
+        }
+
+        /* Drag & Drop Styles */
+        .task-item {
+            transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+        }
+        .task-dragging {
+            opacity: 0.4;
+            transform: scale(0.98);
+        }
+        .task-drag-over {
+            border-top: 2px solid #10b981;
         }
     </style>
 </head>
@@ -103,26 +110,29 @@
     </div>
 
     <!-- Header -->
-    <header class="glass-panel z-10 p-4 flex justify-between items-center shrink-0 bg-white/70 border-b border-slate-200 dark:bg-slate-800/40 dark:border-white/10">
-        <div class="flex items-center gap-3">
+    <header class="glass-panel z-10 p-4 grid grid-cols-3 items-center shrink-0 bg-white/70 border-b border-slate-200 dark:bg-slate-800/40 dark:border-white/10">
+        <!-- Logo & Title (Left) -->
+        <div class="flex items-center gap-3 justify-start">
             <div class="w-10 h-10 rounded-full bg-helios-100 dark:bg-helios-500/20 flex items-center justify-center border border-helios-200 dark:border-helios-400/50 shadow-sm dark:shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                 <i class="fa-solid fa-heart-pulse text-helios-600 dark:text-helios-400 text-xl dark:text-glow-green"></i>
             </div>
-            <h1 class="text-xl font-bold tracking-tight text-slate-800 dark:text-white">ER Task Radar <span class="text-helios-600 dark:text-helios-400 text-sm font-normal ml-2 tracking-widest uppercase">Helios DU</span></h1>
+            <h1 class="text-xl font-bold tracking-tight text-slate-800 dark:text-white hidden sm:block">ER Task Radar <span class="text-helios-600 dark:text-helios-400 text-sm font-normal ml-2 tracking-widest uppercase">Helios Klinik Duisburg</span></h1>
         </div>
-        <div class="flex items-center gap-4 md:gap-6">
-            <div class="text-right hidden sm:block">
-                <div id="clock" class="text-2xl font-bold font-mono text-helios-700 dark:text-white dark:text-glow-green">00:00:00</div>
-                <div id="date" class="text-xs text-slate-500 dark:text-slate-400">Datum</div>
-            </div>
-            
-            <!-- Theme Toggle -->
+        
+        <!-- Clock (Center) -->
+        <div class="flex flex-col items-center justify-center">
+            <div id="clock" class="text-3xl md:text-4xl font-bold font-mono text-helios-700 dark:text-white dark:text-glow-green tracking-tight">00:00:00</div>
+            <div id="date" class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Datum</div>
+        </div>
+
+        <!-- Controls (Right) -->
+        <div class="flex items-center gap-4 justify-end">
             <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-yellow-400 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-600 transition">
                 <i class="fa-solid fa-moon dark:hidden"></i>
                 <i class="fa-solid fa-sun hidden dark:block"></i>
             </button>
 
-            <button onclick="clearAllData()" class="bg-red-100 dark:bg-red-500/20 hover:bg-red-200 dark:hover:bg-red-500/40 border border-red-200 dark:border-red-500/50 text-red-600 dark:text-red-400 px-3 md:px-4 py-2 rounded-lg text-sm transition font-medium flex items-center gap-2 dark:hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+            <button onclick="clearAllData()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 px-3 md:px-4 py-2 rounded-lg text-sm transition font-medium flex items-center gap-2">
                 <i class="fa-solid fa-power-off"></i> <span class="hidden md:inline">Shift Reset</span>
             </button>
         </div>
@@ -143,7 +153,22 @@
                 <!-- Quick Add Timer Form -->
                 <div class="p-4 border-b border-slate-200 dark:border-white/10 space-y-3 bg-slate-50/50 dark:bg-white/5">
                     <input type="text" id="timerPatient" placeholder="Patient / Zimmer / Bett" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-helios-500 focus:ring-1 focus:ring-helios-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white dark:focus:border-helios-400 transition">
-                    <input type="text" id="timerTask" placeholder="Was? (z.B. Labor, Re-Eval)" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-helios-500 focus:ring-1 focus:ring-helios-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white dark:focus:border-helios-400 transition">
+                    
+                    <!-- Freetext / Datalist Combo für Tasks -->
+                    <input list="taskOptions" id="timerTask" placeholder="Was? (z.B. Labor, Re-Eval)" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-helios-500 focus:ring-1 focus:ring-helios-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white dark:focus:border-helios-400 transition">
+                    <datalist id="taskOptions">
+                        <option value="Labor (allg.)">
+                        <option value="Troponin">
+                        <option value="CRP">
+                        <option value="Abstriche">
+                        <option value="Blutkulturen">
+                        <option value="BGA">
+                        <option value="Urin">
+                        <option value="Analgesie Re-Eval">
+                        <option value="EKG">
+                        <option value="Arztinfo">
+                    </datalist>
+                    
                     <div class="flex gap-2">
                         <button onclick="addTimer(20)" class="flex-1 bg-white dark:bg-white/5 hover:bg-helios-50 dark:hover:bg-helios-500/20 text-slate-600 dark:text-slate-300 hover:text-helios-700 dark:hover:text-white text-xs py-2 rounded-lg border border-slate-200 dark:border-white/10 transition font-medium">20m</button>
                         <button onclick="addTimer(45)" class="flex-1 bg-white dark:bg-white/5 hover:bg-helios-50 dark:hover:bg-helios-500/20 text-slate-600 dark:text-slate-300 hover:text-helios-700 dark:hover:text-white text-xs py-2 rounded-lg border border-slate-200 dark:border-white/10 transition font-medium">45m</button>
@@ -172,15 +197,21 @@
                 <div class="p-4 border-b border-slate-200 dark:border-white/10 space-y-3 bg-slate-50/50 dark:bg-white/5">
                     <input type="text" id="transPatient" placeholder="Patient / Zimmer" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white transition">
                     <div class="flex gap-2">
-                        <select id="transZiel" class="flex-1 text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none appearance-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white">
-                            <option value="" class="dark:bg-slate-800">Ziel wählen...</option>
-                            <option value="CT" class="dark:bg-slate-800">CT</option>
-                            <option value="Röntgen" class="dark:bg-slate-800">Röntgen</option>
-                            <option value="Station" class="dark:bg-slate-800">Station</option>
-                            <option value="OP" class="dark:bg-slate-800">OP</option>
-                            <option value="Herzkatheter" class="dark:bg-slate-800">Herzkatheter</option>
-                        </select>
-                        <input type="time" id="transTime" class="w-26 text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-center dark:bg-slate-900/60 dark:border-white/10 dark:text-white">
+                        <!-- Freetext / Datalist Combo -->
+                        <input list="zielOptions" id="transZiel" placeholder="Ziel..." class="flex-1 w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white font-medium transition">
+                        <datalist id="zielOptions">
+                            <option value="Entlassung / Heim">
+                            <option value="Rücktransport">
+                            <option value="Verlegung Extern">
+                            <option value="Verlegung Intern">
+                            <option value="CT">
+                            <option value="Röntgen">
+                            <option value="Station">
+                            <option value="OP">
+                            <option value="Herzkatheter">
+                        </datalist>
+
+                        <input type="time" id="transTime" title="Ziel-Uhrzeit (leer = sofort)" class="w-26 text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-center dark:bg-slate-900/60 dark:border-white/10 dark:text-white">
                     </div>
                     <button onclick="addTransport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-500/20 dark:hover:bg-indigo-500/40 dark:border dark:border-indigo-400/50 dark:text-indigo-300 dark:hover:text-white text-sm py-2.5 rounded-lg transition font-medium shadow-sm dark:shadow-[0_0_10px_rgba(99,102,241,0.2)]"><i class="fa-solid fa-truck-medical mr-2"></i> Transport anlegen</button>
                 </div>
@@ -205,6 +236,13 @@
                         <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">Patienten Info optional</label>
                         <input type="text" id="vitPatient" placeholder="Name oder Raum" class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white transition">
                     </div>
+                    
+                    <!-- ALLERGY FIELD -->
+                    <div>
+                        <label class="text-xs font-bold text-red-500 dark:text-red-400 mb-1.5 block uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation"></i> Allergien</label>
+                        <input type="text" id="vitAllergies" placeholder="Keine bekannt / Penicillin..." class="w-full text-sm p-2.5 rounded-lg bg-red-50/50 border border-red-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none dark:bg-red-900/10 dark:border-red-500/30 dark:text-white transition">
+                    </div>
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">RR mmHg</label>
@@ -230,7 +268,7 @@
                     
                     <div class="pt-2 flex gap-2">
                         <button onclick="copyVitals()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white dark:bg-white/10 dark:hover:bg-white/20 dark:border dark:border-white/20 py-2.5 rounded-lg transition font-medium text-sm flex justify-center items-center gap-2 shadow-sm">
-                            <i class="fa-regular fa-copy"></i> In Ablage kopieren
+                            <i class="fa-regular fa-copy"></i> Vitals Kopieren
                         </button>
                         <button onclick="clearVitals()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:border dark:border-red-500/30 dark:text-red-400 px-4 py-2.5 rounded-lg transition">
                             <i class="fa-solid fa-eraser"></i>
@@ -241,7 +279,7 @@
             </div>
         </div>
 
-        <!-- Column 4: Task List (Formerly Brain Dump) -->
+        <!-- Column 4: Task List -->
         <div class="flex flex-col gap-4 h-full lg:col-span-1">
             <div class="glass-panel rounded-2xl flex flex-col h-full bg-white/70 border border-slate-200 dark:bg-slate-800/40 dark:border-white/10">
                 <div class="p-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center">
@@ -255,7 +293,7 @@
                         <input type="text" id="newTaskInput" placeholder="Neue Aufgabe..." class="w-full text-sm p-2.5 rounded-lg bg-white border border-slate-200 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none dark:bg-slate-900/60 dark:border-white/10 dark:text-white transition" onkeypress="if(event.key === 'Enter') addTask()">
                         <button onclick="addTask()" class="bg-amber-500 hover:bg-amber-600 text-white dark:bg-amber-500/30 dark:hover:bg-amber-500/50 dark:border dark:border-amber-500/50 px-4 rounded-lg transition shadow-sm"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <div id="taskList" class="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-1">
+                    <div id="taskList" class="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-1 mb-2 pb-4">
                         <!-- Tasks injected here -->
                     </div>
                 </div>
@@ -269,7 +307,7 @@
         let appData = {
             timers: [],
             transports: [],
-            tasks: [] // Changed from notes to tasks
+            tasks: [] 
         };
 
         // Theme Toggle Logic
@@ -283,7 +321,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             startClock();
-            setInterval(updateTimersLogic, 1000);
+            setInterval(updateAllTimers, 1000);
         });
 
         function startClock() {
@@ -305,13 +343,7 @@
                 const parsed = JSON.parse(saved);
                 appData.timers = parsed.timers || [];
                 appData.transports = parsed.transports || [];
-                
-                // Migration: if old 'notes' exist but no 'tasks', convert notes to a single task just in case
-                if (parsed.notes && (!parsed.tasks || parsed.tasks.length === 0)) {
-                    appData.tasks = [{ id: Date.now(), text: parsed.notes, done: false }];
-                } else {
-                    appData.tasks = parsed.tasks || [];
-                }
+                appData.tasks = parsed.tasks || [];
 
                 renderTimers();
                 renderTransports();
@@ -328,6 +360,37 @@
                 renderTransports();
                 renderTasks();
             }
+        }
+
+        // Master Timer Loop
+        function updateAllTimers() {
+            let needsRender = false;
+            const now = Date.now();
+            
+            // Timers Logic
+            appData.timers.forEach(timer => {
+                const elapsed = now - timer.startTime;
+                const wasOverdue = timer.isOverdue;
+                timer.isOverdue = elapsed >= timer.durationMs;
+                
+                if (timer.isOverdue !== wasOverdue) {
+                    needsRender = true;
+                }
+            });
+            
+            if (needsRender) {
+                saveData();
+                renderTimers();
+            } else {
+                updateTimerDisplays(now);
+            }
+        }
+
+        function formatTimeDiff(ms) {
+            const totalSeconds = Math.floor(Math.abs(ms) / 1000);
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
         // Feature: Timers
@@ -367,35 +430,6 @@
             renderTimers();
         }
 
-        function updateTimersLogic() {
-            let needsRender = false;
-            const now = Date.now();
-            
-            appData.timers.forEach(timer => {
-                const elapsed = now - timer.startTime;
-                const wasOverdue = timer.isOverdue;
-                timer.isOverdue = elapsed >= timer.durationMs;
-                
-                if (timer.isOverdue !== wasOverdue) {
-                    needsRender = true;
-                    saveData();
-                }
-            });
-            
-            if (needsRender) {
-                renderTimers();
-            } else {
-                updateTimerDisplays(now);
-            }
-        }
-
-        function formatTimeDiff(ms) {
-            const totalSeconds = Math.floor(Math.abs(ms) / 1000);
-            const m = Math.floor(totalSeconds / 60);
-            const s = totalSeconds % 60;
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
         function renderTimers() {
             const list = document.getElementById('timerList');
             list.innerHTML = '';
@@ -416,7 +450,6 @@
             sortedTimers.forEach(timer => {
                 const el = document.createElement('div');
                 
-                // Styling Logic based on state and theme
                 const baseClasses = "p-4 rounded-xl relative transition-all duration-300 border overflow-hidden shadow-sm";
                 const stateClasses = timer.isOverdue 
                     ? "bg-red-50 border-red-300 dark:bg-red-900/20 dark:border-red-500/50 animate-pulse-red-glow" 
@@ -428,7 +461,7 @@
                     <div class="flex justify-between items-start mb-2 relative z-10">
                         <div>
                             <div class="font-bold text-sm text-slate-800 dark:text-white">${timer.patient}</div>
-                            <div class="text-xs text-slate-500 dark:text-slate-300 mt-0.5">${timer.task}</div>
+                            <div class="text-xs font-semibold text-helios-600 dark:text-helios-400 mt-0.5 uppercase tracking-wide">${timer.task}</div>
                         </div>
                         <button onclick="deleteTimer(${timer.id})" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-white/10"><i class="fa-solid fa-times"></i></button>
                     </div>
@@ -455,6 +488,7 @@
         }
 
         function updateTimerDisplays(now) {
+            // Update Active Timers
             appData.timers.forEach(timer => {
                 const display = document.querySelector(`.timer-display[data-id="${timer.id}"]`);
                 const progress = document.querySelector(`.progress-bar[data-id="${timer.id}"]`);
@@ -474,24 +508,67 @@
                     }
                 }
             });
+
+            // Update Transport Timers
+            appData.transports.forEach(t => {
+                if (t.status === 'done') return; // Don't tick if done
+                
+                const display = document.querySelector(`.trans-timer-display[data-id="${t.id}"]`);
+                if(display) {
+                    if (t.isAsap) {
+                        // Count up from creation time
+                        const elapsed = now - t.targetMs;
+                        display.innerText = "+" + formatTimeDiff(elapsed);
+                        display.classList.add('text-red-500', 'dark:text-red-400');
+                    } else {
+                        // Countdown to targetMs
+                        const diff = t.targetMs - now;
+                        if(diff <= 0) {
+                            display.innerText = "+" + formatTimeDiff(Math.abs(diff));
+                            display.classList.add('text-red-500', 'dark:text-red-400');
+                            display.classList.remove('text-indigo-600', 'dark:text-indigo-400');
+                        } else {
+                            display.innerText = formatTimeDiff(diff);
+                            display.classList.remove('text-red-500', 'dark:text-red-400');
+                            display.classList.add('text-indigo-600', 'dark:text-indigo-400');
+                        }
+                    }
+                }
+            });
         }
 
         // Feature: Transports
         function addTransport() {
             const patient = document.getElementById('transPatient').value;
             const ziel = document.getElementById('transZiel').value;
-            const time = document.getElementById('transTime').value;
+            const timeInput = document.getElementById('transTime').value;
 
             if(!patient || !ziel) {
                 alert("Patient und Ziel müssen ausgefüllt sein.");
                 return;
             }
 
+            let targetMs = 0;
+            let isAsap = false;
+
+            if(timeInput) {
+                const [hours, mins] = timeInput.split(':');
+                const d = new Date();
+                d.setHours(parseInt(hours), parseInt(mins), 0, 0);
+                targetMs = d.getTime();
+                // If the selected time was earlier today, we still track it (it will just be overdue immediately)
+            } else {
+                targetMs = Date.now();
+                isAsap = true;
+            }
+
             const newTrans = {
                 id: Date.now(),
                 patient: patient,
                 ziel: ziel,
-                time: time || "ASAP",
+                timeString: timeInput || "ASAP",
+                targetMs: targetMs,
+                isAsap: isAsap,
                 status: "waiting" 
             };
 
@@ -542,15 +619,24 @@
                 }
 
                 const el = document.createElement('div');
-                el.className = `p-3 rounded-xl border flex flex-col gap-3 transition-all duration-300 shadow-sm ${statusColor}`;
+                el.className = `p-3 rounded-xl border flex flex-col gap-2 transition-all duration-300 shadow-sm ${statusColor}`;
+                
+                // Show timer only if not done
+                const timerHtml = t.status !== 'done' 
+                    ? `<div class="font-mono text-sm font-bold trans-timer-display" data-id="${t.id}">--:--</div>` 
+                    : `<div class="font-mono text-sm font-bold text-slate-400">Erledigt</div>`;
+
                 el.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="font-bold text-sm text-slate-800 dark:text-white">${t.patient}</div>
-                        <div class="font-mono text-xs font-bold px-2 py-0.5 rounded border ${badgeColor}">${t.time}</div>
+                        <div class="flex items-center gap-2">
+                            ${timerHtml}
+                            <div class="font-mono text-xs font-bold px-2 py-0.5 rounded border ${badgeColor}">${t.timeString}</div>
+                        </div>
                     </div>
-                    <div class="text-sm font-medium opacity-80"><i class="fa-solid fa-location-dot mr-1.5"></i> ${t.ziel}</div>
+                    <div class="text-sm font-medium opacity-80 mt-1"><i class="fa-solid fa-location-dot mr-1.5"></i> ${t.ziel}</div>
                     
-                    <div class="flex justify-between items-center mt-1 pt-3 border-t border-black/5 dark:border-white/10">
+                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-black/5 dark:border-white/10">
                         <div class="flex gap-1">
                             ${t.status !== 'waiting' ? `<button onclick="updateTransportStatus(${t.id}, 'waiting')" class="text-xs w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-500 dark:bg-black/20 dark:hover:bg-slate-700 dark:border-white/10 dark:text-slate-400 transition" title="Wartet"><i class="fa-regular fa-clock"></i></button>` : ''}
                             ${t.status !== 'progress' ? `<button onclick="updateTransportStatus(${t.id}, 'progress')" class="text-xs w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-200 text-amber-600 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 dark:border-amber-500/30 dark:text-amber-400 transition" title="Unterwegs"><i class="fa-solid fa-person-walking-arrow-right"></i></button>` : ''}
@@ -561,11 +647,13 @@
                 `;
                 list.appendChild(el);
             });
+            updateTimerDisplays(Date.now());
         }
 
         // Feature: Vitals
         function copyVitals() {
             const pat = document.getElementById('vitPatient').value;
+            const alg = document.getElementById('vitAllergies').value;
             const rr = document.getElementById('vitRR').value;
             const hf = document.getElementById('vitHF').value;
             const spo2 = document.getElementById('vitSpO2').value;
@@ -574,17 +662,18 @@
 
             let text = "VITALWERTE:\n";
             if(pat) text += `Patient: ${pat}\n`;
+            if(alg) text += `ALLERGIEN: ${alg.toUpperCase()}\n`;
             if(rr) text += `RR: ${rr} mmHg\n`;
             if(hf) text += `HF: ${hf} /min\n`;
             if(spo2) text += `SpO2: ${spo2} %\n`;
             if(temp) text += `Temp: ${temp} °C\n`;
             if(misc) text += `Zusatz: ${misc}\n`;
             text += `Erfasst um: ${new Date().toLocaleTimeString('de-DE').substring(0,5)} Uhr`;
-
+            
             navigator.clipboard.writeText(text).then(() => {
                 const toast = document.getElementById('copyToast');
                 toast.classList.remove('hidden');
-                setTimeout(() => toast.classList.add('hidden'), 2000);
+                setTimeout(() => toast.classList.add('hidden'), 2500);
             }).catch(err => {
                 const textArea = document.createElement("textarea");
                 textArea.value = text;
@@ -594,7 +683,7 @@
                     document.execCommand('copy');
                     const toast = document.getElementById('copyToast');
                     toast.classList.remove('hidden');
-                    setTimeout(() => toast.classList.add('hidden'), 2000);
+                    setTimeout(() => toast.classList.add('hidden'), 2500);
                 } catch (err) {
                     console.error('Fallback failed', err);
                 }
@@ -604,6 +693,7 @@
 
         function clearVitals() {
             document.getElementById('vitPatient').value = '';
+            document.getElementById('vitAllergies').value = '';
             document.getElementById('vitRR').value = '';
             document.getElementById('vitHF').value = '';
             document.getElementById('vitSpO2').value = '';
@@ -611,7 +701,9 @@
             document.getElementById('vitMisc').value = '';
         }
 
-        // Feature: Task List (Checklist)
+        // Feature: Task List with Drag & Drop
+        let draggedTaskId = null;
+
         function addTask() {
             const input = document.getElementById('newTaskInput');
             const text = input.value.trim();
@@ -629,9 +721,19 @@
         }
 
         function toggleTask(id) {
-            const task = appData.tasks.find(t => t.id === id);
-            if(task) {
+            const index = appData.tasks.findIndex(t => t.id === id);
+            if(index !== -1) {
+                const task = appData.tasks[index];
                 task.done = !task.done;
+                
+                // Remove task and push to end if done, or shift to top if undone
+                appData.tasks.splice(index, 1);
+                if (task.done) {
+                    appData.tasks.push(task);
+                } else {
+                    appData.tasks.unshift(task);
+                }
+                
                 saveData();
                 renderTasks();
             }
@@ -643,6 +745,56 @@
             renderTasks();
         }
 
+        // Drag and Drop Handlers
+        function handleDragStart(e) {
+            draggedTaskId = Number(this.dataset.id);
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.id);
+            setTimeout(() => this.classList.add('task-dragging'), 0);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault(); // Necessary to allow dropping
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            if (Number(this.dataset.id) !== draggedTaskId) {
+                this.classList.add('task-drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('task-drag-over');
+        }
+
+        function handleDrop(e) {
+            e.stopPropagation();
+            this.classList.remove('task-drag-over');
+            
+            const dropTargetId = Number(this.dataset.id);
+            
+            if (draggedTaskId && draggedTaskId !== dropTargetId) {
+                const draggedIdx = appData.tasks.findIndex(t => t.id === draggedTaskId);
+                const targetIdx = appData.tasks.findIndex(t => t.id === dropTargetId);
+                
+                if (draggedIdx !== -1 && targetIdx !== -1) {
+                    const [removedItem] = appData.tasks.splice(draggedIdx, 1);
+                    appData.tasks.splice(targetIdx, 0, removedItem);
+                    saveData();
+                    renderTasks();
+                }
+            }
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('task-dragging');
+            document.querySelectorAll('.task-item').forEach(el => el.classList.remove('task-drag-over'));
+            draggedTaskId = null;
+        }
+
         function renderTasks() {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
@@ -652,26 +804,34 @@
                 return;
             }
 
-            // Sort so unchecked are at the top
-            const sortedTasks = [...appData.tasks].sort((a, b) => {
-                if(a.done === b.done) return b.id - a.id; // newest first
-                return a.done ? 1 : -1;
-            });
-
-            sortedTasks.forEach(task => {
+            appData.tasks.forEach(task => {
                 const el = document.createElement('div');
                 const textStyle = task.done 
                     ? "line-through text-slate-400 dark:text-slate-500" 
                     : "text-slate-700 dark:text-slate-200";
                 const bgStyle = task.done 
                     ? "bg-slate-50/50 dark:bg-white/5 opacity-70 border-transparent" 
-                    : "bg-white dark:bg-slate-900/40 border-slate-200 dark:border-white/10 shadow-sm";
+                    : "bg-white dark:bg-slate-900/40 border-slate-200 dark:border-white/10 shadow-sm cursor-grab active:cursor-grabbing";
                 const checkIcon = task.done 
                     ? "<i class='fa-solid fa-circle-check text-helios-500 dark:text-helios-400'></i>" 
                     : "<i class='fa-regular fa-circle text-slate-300 dark:text-slate-500'></i>";
 
-                el.className = `flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${bgStyle}`;
+                el.className = `task-item flex items-center gap-3 p-3 rounded-lg border ${bgStyle}`;
+                el.dataset.id = task.id;
+                
+                // Only make undone items draggable
+                if (!task.done) {
+                    el.draggable = true;
+                    el.addEventListener('dragstart', handleDragStart);
+                    el.addEventListener('dragover', handleDragOver);
+                    el.addEventListener('dragenter', handleDragEnter);
+                    el.addEventListener('dragleave', handleDragLeave);
+                    el.addEventListener('drop', handleDrop);
+                    el.addEventListener('dragend', handleDragEnd);
+                }
+
                 el.innerHTML = `
+                    ${!task.done ? `<div class="text-slate-300 dark:text-slate-600 cursor-grab hover:text-slate-400"><i class="fa-solid fa-grip-vertical"></i></div>` : `<div class="w-2"></div>`}
                     <button onclick="toggleTask(${task.id})" class="text-xl flex-shrink-0 hover:scale-110 transition-transform">
                         ${checkIcon}
                     </button>
