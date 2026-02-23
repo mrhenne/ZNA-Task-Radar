@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER Task Radar | Helios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        helios: {
+                            400: '#10b981', /* Emerald 500 */
+                            500: '#059669', /* Emerald 600 */
+                            glow: 'rgba(16, 185, 129, 0.4)'
+                        }
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'pulse-red-glow': 'pulse-red-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(16, 185, 129, 0.2)', borderColor: 'rgba(16, 185, 129, 0.3)' },
+                            '50%': { boxShadow: '0 0 25px rgba(16, 185, 129, 0.6)', borderColor: 'rgba(16, 185, 129, 0.8)' },
+                        },
+                        'pulse-red-glow': {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)', borderColor: 'rgba(239, 68, 68, 0.5)', backgroundColor: 'rgba(239, 68, 68, 0.05)' },
+                            '50%': { boxShadow: '0 0 30px rgba(239, 68, 68, 0.8)', borderColor: 'rgba(239, 68, 68, 1)', backgroundColor: 'rgba(239, 68, 68, 0.15)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-input:focus {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+            outline: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+        
+        /* Neon text */
+        .text-glow-green {
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+        }
+        .text-glow-red {
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden relative">
+
+    <!-- Liquid Background Blobs -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-helios-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[30rem] h-[30rem] bg-teal-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-blob" style="animation-delay: 2s"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[40rem] h-[40rem] bg-cyan-900 rounded-full mix-blend-screen filter blur-[130px] opacity-30 animate-blob" style="animation-delay: 4s"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="glass-panel z-10 p-4 flex justify-between items-center shrink-0 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-helios-500/20 flex items-center justify-center border border-helios-400/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                <i class="fa-solid fa-heart-pulse text-helios-400 text-xl text-glow-green"></i>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight text-white">ER Task Radar <span class="text-helios-400 text-sm font-normal ml-2 tracking-widest uppercase">Helios DU</span></h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="text-right">
+                <div id="clock" class="text-2xl font-bold font-mono text-white text-glow-green">00:00:00</div>
+                <div id="date" class="text-xs text-slate-400">Datum</div>
+            </div>
+            <button onclick="clearAllData()" class="bg-red-500/20 hover:bg-red-500/40 border border-red-500/50 text-red-400 px-4 py-2 rounded-lg text-sm transition font-medium flex items-center gap-2 hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                <i class="fa-solid fa-power-off"></i> Shift Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-y-auto align-top z-10 relative">
+        
+        <!-- Column 1: Timers -->
+        <div class="flex flex-col gap-4 h-full">
+            <div class="glass-panel rounded-2xl flex flex-col max-h-full">
+                <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                    <h2 class="font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-stopwatch text-helios-400"></i> Aktive Timer
+                    </h2>
+                </div>
+                
+                <!-- Quick Add Timer Form -->
+                <div class="p-4 border-b border-white/10 space-y-3 bg-white/5">
+                    <input type="text" id="timerPatient" placeholder="Patient / Zimmer / Bett" class="w-full text-sm p-2.5 rounded-lg glass-input">
+                    <input type="text" id="timerTask" placeholder="Was? (z.B. Labor, Re-Eval)" class="w-full text-sm p-2.5 rounded-lg glass-input">
+                    <div class="flex gap-2">
+                        <button onclick="addTimer(30)" class="flex-1 bg-white/5 hover:bg-helios-500/20 text-slate-300 hover:text-white text-xs py-2 rounded-lg border border-white/10 hover:border-helios-400/50 transition">30m</button>
+                        <button onclick="addTimer(45)" class="flex-1 bg-white/5 hover:bg-helios-500/20 text-slate-300 hover:text-white text-xs py-2 rounded-lg border border-white/10 hover:border-helios-400/50 transition">45m</button>
+                        <button onclick="addTimer(60)" class="flex-1 bg-white/5 hover:bg-helios-500/20 text-slate-300 hover:text-white text-xs py-2 rounded-lg border border-white/10 hover:border-helios-400/50 transition">60m</button>
+                        <input type="number" id="timerCustom" placeholder="Min" class="w-16 text-sm p-2 rounded-lg glass-input text-center">
+                        <button onclick="addCustomTimer()" class="bg-helios-500/30 hover:bg-helios-500/50 border border-helios-400 text-helios-400 hover:text-white px-3 py-1 rounded-lg transition shadow-[0_0_10px_rgba(16,185,129,0.2)]"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <!-- Timer List -->
+                <div id="timerList" class="p-4 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
+                    <!-- Timers injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 2: Transports -->
+        <div class="flex flex-col gap-4 h-full">
+            <div class="glass-panel rounded-2xl flex flex-col max-h-full">
+                <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                    <h2 class="font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bed-pulse text-indigo-400"></i> Transport Radar
+                    </h2>
+                </div>
+                
+                <div class="p-4 border-b border-white/10 space-y-3 bg-white/5">
+                    <input type="text" id="transPatient" placeholder="Patient / Zimmer" class="w-full text-sm p-2.5 rounded-lg glass-input">
+                    <div class="flex gap-2">
+                        <select id="transZiel" class="flex-1 text-sm p-2.5 rounded-lg glass-input appearance-none">
+                            <option value="" class="bg-slate-800">Ziel wählen...</option>
+                            <option value="CT" class="bg-slate-800">CT</option>
+                            <option value="Röntgen" class="bg-slate-800">Röntgen</option>
+                            <option value="Station" class="bg-slate-800">Station</option>
+                            <option value="OP" class="bg-slate-800">OP</option>
+                            <option value="Herzkatheter" class="bg-slate-800">Herzkatheter</option>
+                        </select>
+                        <input type="time" id="transTime" class="w-26 text-sm p-2.5 rounded-lg glass-input text-center">
+                    </div>
+                    <button onclick="addTransport()" class="w-full bg-indigo-500/20 hover:bg-indigo-500/40 border border-indigo-400/50 text-indigo-300 hover:text-white text-sm py-2.5 rounded-lg transition font-medium shadow-[0_0_10px_rgba(99,102,241,0.2)]"><i class="fa-solid fa-truck-medical mr-2"></i> Transport anlegen</button>
+                </div>
+
+                <div id="transportList" class="p-4 overflow-y-auto flex-1 space-y-3 custom-scrollbar">
+                    <!-- Transports injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 3: Vitals Dropzone -->
+        <div class="flex flex-col gap-4 h-full lg:col-span-1">
+            <div class="glass-panel rounded-2xl flex flex-col max-h-full">
+                <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                    <h2 class="font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-heartbeat text-pink-500"></i> Vital Zwischenablage
+                    </h2>
+                </div>
+                
+                <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-400 mb-1.5 block">Patienten Info optional</label>
+                        <input type="text" id="vitPatient" placeholder="Name oder Raum" class="w-full text-sm p-2.5 rounded-lg glass-input">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-400 mb-1.5 block">RR mmHg</label>
+                            <input type="text" id="vitRR" placeholder="120/80" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input text-center text-helios-400">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-400 mb-1.5 block">HF /min</label>
+                            <input type="number" id="vitHF" placeholder="80" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input text-center text-helios-400">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-400 mb-1.5 block">SpO2 %</label>
+                            <input type="number" id="vitSpO2" placeholder="98" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input text-center text-helios-400">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-400 mb-1.5 block">Temp °C</label>
+                            <input type="number" step="0.1" id="vitTemp" placeholder="37.0" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input text-center text-helios-400">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-400 mb-1.5 block">GCS / BZ / Sonstiges</label>
+                        <input type="text" id="vitMisc" placeholder="BZ 120, GCS 15..." class="w-full text-sm p-2.5 rounded-lg glass-input">
+                    </div>
+                    
+                    <div class="pt-2 flex gap-2">
+                        <button onclick="copyVitals()" class="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white py-2.5 rounded-lg transition font-medium text-sm flex justify-center items-center gap-2">
+                            <i class="fa-regular fa-copy"></i> In Ablage kopieren
+                        </button>
+                        <button onclick="clearVitals()" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-4 py-2.5 rounded-lg transition">
+                            <i class="fa-solid fa-eraser"></i>
+                        </button>
+                    </div>
+                    <div id="copyToast" class="hidden text-center text-xs font-medium text-helios-400 bg-helios-500/10 border border-helios-500/20 p-2 rounded-lg">Kopiert für Orbis!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 4: Quick Notes -->
+        <div class="flex flex-col gap-4 h-full lg:col-span-1">
+            <div class="glass-panel rounded-2xl flex flex-col h-full">
+                <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                    <h2 class="font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-amber-400"></i> Brain Dump
+                    </h2>
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest bg-white/5 px-2 py-1 rounded">Auto Save</span>
+                </div>
+                <div class="p-4 flex-1 flex flex-col">
+                    <textarea id="quickNotes" oninput="saveNotes()" placeholder="Gedanken, Übergabe Infos, offene Tasks... einfach runterschreiben." class="w-full flex-1 p-4 text-sm glass-input rounded-xl resize-none leading-relaxed custom-scrollbar text-slate-200"></textarea>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // State Management
+        let appData = {
+            timers: [],
+            transports: [],
+            notes: ""
+        };
+
+        // Init & Loop
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            startClock();
+            setInterval(updateTimersLogic, 1000);
+        });
+
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock').innerText = now.toLocaleTimeString('de-DE');
+                document.getElementById('date').innerText = now.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }, 1000);
+        }
+
+        // Data Persistence
+        function saveData() {
+            localStorage.setItem('erTaskRadar', JSON.stringify(appData));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('erTaskRadar');
+            if (saved) {
+                appData = JSON.parse(saved);
+                document.getElementById('quickNotes').value = appData.notes || "";
+                renderTimers();
+                renderTransports();
+            }
+        }
+
+        function clearAllData() {
+            if(confirm('Achtung: Willst du wirklich alle Daten dieser Schicht löschen?')) {
+                appData = { timers: [], transports: [], notes: "" };
+                document.getElementById('quickNotes').value = "";
+                clearVitals();
+                saveData();
+                renderTimers();
+                renderTransports();
+            }
+        }
+
+        // Feature: Timers
+        function addTimer(minutes) {
+            const patient = document.getElementById('timerPatient').value || "Unbekannt";
+            const task = document.getElementById('timerTask').value || "Labor / Warten";
+            
+            const newTimer = {
+                id: Date.now(),
+                patient: patient,
+                task: task,
+                startTime: Date.now(),
+                durationMs: minutes * 60 * 1000,
+                isOverdue: false
+            };
+            
+            appData.timers.push(newTimer);
+            saveData();
+            renderTimers();
+            
+            document.getElementById('timerPatient').value = "";
+            document.getElementById('timerTask').value = "";
+            document.getElementById('timerPatient').focus();
+        }
+
+        function addCustomTimer() {
+            const mins = parseInt(document.getElementById('timerCustom').value);
+            if(mins > 0) {
+                addTimer(mins);
+                document.getElementById('timerCustom').value = "";
+            }
+        }
+
+        function deleteTimer(id) {
+            appData.timers = appData.timers.filter(t => t.id !== id);
+            saveData();
+            renderTimers();
+        }
+
+        function updateTimersLogic() {
+            let needsRender = false;
+            const now = Date.now();
+            
+            appData.timers.forEach(timer => {
+                const elapsed = now - timer.startTime;
+                const wasOverdue = timer.isOverdue;
+                timer.isOverdue = elapsed >= timer.durationMs;
+                
+                if (timer.isOverdue !== wasOverdue) {
+                    needsRender = true;
+                    saveData();
+                }
+            });
+            
+            if (needsRender) {
+                renderTimers();
+            } else {
+                updateTimerDisplays(now);
+            }
+        }
+
+        function formatTimeDiff(ms) {
+            const totalSeconds = Math.floor(Math.abs(ms) / 1000);
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function renderTimers() {
+            const list = document.getElementById('timerList');
+            list.innerHTML = '';
+            
+            if(appData.timers.length === 0) {
+                list.innerHTML = '<div class="text-center text-slate-500 text-sm py-8 font-mono">Keine aktiven Timer</div>';
+                return;
+            }
+
+            const sortedTimers = [...appData.timers].sort((a, b) => {
+                if (a.isOverdue && !b.isOverdue) return -1;
+                if (!a.isOverdue && b.isOverdue) return 1;
+                const aRemaining = a.durationMs - (Date.now() - a.startTime);
+                const bRemaining = b.durationMs - (Date.now() - b.startTime);
+                return aRemaining - bRemaining;
+            });
+
+            sortedTimers.forEach(timer => {
+                const el = document.createElement('div');
+                
+                // Styling Logic based on state
+                const baseClasses = "p-4 rounded-xl relative transition-all duration-300 border overflow-hidden";
+                const stateClasses = timer.isOverdue 
+                    ? "bg-red-900/20 border-red-500/50 animate-pulse-red-glow" 
+                    : "bg-white/5 border-helios-400/30 animate-pulse-glow";
+                
+                el.className = `${baseClasses} ${stateClasses}`;
+                
+                el.innerHTML = `
+                    <div class="flex justify-between items-start mb-2 relative z-10">
+                        <div>
+                            <div class="font-bold text-sm text-white">${timer.patient}</div>
+                            <div class="text-xs text-slate-300 mt-0.5">${timer.task}</div>
+                        </div>
+                        <button onclick="deleteTimer(${timer.id})" class="text-slate-400 hover:text-white transition w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                    
+                    <div class="flex justify-between items-end mt-4 relative z-10">
+                        <div class="text-xs font-mono px-2 py-1 rounded bg-black/30 text-slate-300 border border-white/10">
+                            Ziel: ${timer.durationMs / 60000}m
+                        </div>
+                        <div class="font-mono font-bold text-2xl tracking-wider timer-display ${timer.isOverdue ? 'text-red-400 text-glow-red' : 'text-helios-400 text-glow-green'}" data-id="${timer.id}">
+                            --:--
+                        </div>
+                    </div>
+                    
+                    ${!timer.isOverdue ? `
+                    <div class="absolute bottom-0 left-0 h-1 bg-helios-500/20 w-full">
+                        <div class="bg-helios-400 h-full progress-bar shadow-[0_0_10px_rgba(16,185,129,0.8)] transition-all duration-1000 ease-linear" data-id="${timer.id}"></div>
+                    </div>` : `
+                    <div class="absolute bottom-0 left-0 h-1 bg-red-500 w-full shadow-[0_0_15px_rgba(239,68,68,1)]"></div>
+                    `}
+                `;
+                list.appendChild(el);
+            });
+            updateTimerDisplays(Date.now());
+        }
+
+        function updateTimerDisplays(now) {
+            appData.timers.forEach(timer => {
+                const display = document.querySelector(`.timer-display[data-id="${timer.id}"]`);
+                const progress = document.querySelector(`.progress-bar[data-id="${timer.id}"]`);
+                
+                if(display) {
+                    const elapsed = now - timer.startTime;
+                    const diff = timer.durationMs - elapsed;
+                    
+                    if(diff <= 0) {
+                        display.innerText = "+" + formatTimeDiff(Math.abs(diff));
+                    } else {
+                        display.innerText = formatTimeDiff(diff);
+                        if(progress) {
+                            const percent = (elapsed / timer.durationMs) * 100;
+                            progress.style.width = `${percent}%`;
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // Feature: Transports
+        function addTransport() {
+            const patient = document.getElementById('transPatient').value;
+            const ziel = document.getElementById('transZiel').value;
+            const time = document.getElementById('transTime').value;
+
+            if(!patient || !ziel) {
+                alert("Patient und Ziel müssen ausgefüllt sein.");
+                return;
+            }
+
+            const newTrans = {
+                id: Date.now(),
+                patient: patient,
+                ziel: ziel,
+                time: time || "ASAP",
+                status: "waiting" 
+            };
+
+            appData.transports.push(newTrans);
+            saveData();
+            renderTransports();
+            
+            document.getElementById('transPatient').value = "";
+            document.getElementById('transZiel').value = "";
+            document.getElementById('transTime').value = "";
+        }
+
+        function updateTransportStatus(id, newStatus) {
+            const t = appData.transports.find(x => x.id === id);
+            if(t) {
+                t.status = newStatus;
+                saveData();
+                renderTransports();
+            }
+        }
+
+        function deleteTransport(id) {
+            appData.transports = appData.transports.filter(t => t.id !== id);
+            saveData();
+            renderTransports();
+        }
+
+        function renderTransports() {
+            const list = document.getElementById('transportList');
+            list.innerHTML = '';
+            
+            if(appData.transports.length === 0) {
+                list.innerHTML = '<div class="text-center text-slate-500 text-sm py-8 font-mono">Keine Transporte disponiert</div>';
+                return;
+            }
+
+            appData.transports.forEach(t => {
+                let statusColor = "bg-white/5 border-white/10 text-slate-300";
+                let badgeColor = "bg-slate-800 text-slate-300 border-white/10";
+                
+                if(t.status === 'progress') { 
+                    statusColor = "bg-amber-500/10 border-amber-500/30 text-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.1)]"; 
+                    badgeColor = "bg-amber-500/20 text-amber-300 border-amber-500/50";
+                }
+                if(t.status === 'done') { 
+                    statusColor = "bg-helios-500/10 border-helios-500/30 text-helios-100 opacity-60"; 
+                    badgeColor = "bg-helios-500/20 text-helios-300 border-helios-500/50";
+                }
+
+                const el = document.createElement('div');
+                el.className = `p-3 rounded-xl border flex flex-col gap-3 transition-all duration-300 ${statusColor}`;
+                el.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="font-bold text-sm text-white">${t.patient}</div>
+                        <div class="font-mono text-xs font-bold px-2 py-0.5 rounded border ${badgeColor}">${t.time}</div>
+                    </div>
+                    <div class="text-sm font-medium opacity-80"><i class="fa-solid fa-location-dot mr-1.5"></i> ${t.ziel}</div>
+                    
+                    <div class="flex justify-between items-center mt-1 pt-3 border-t border-white/10">
+                        <div class="flex gap-1">
+                            ${t.status !== 'waiting' ? `<button onclick="updateTransportStatus(${t.id}, 'waiting')" class="text-xs w-8 h-8 rounded-lg bg-black/20 hover:bg-slate-700 border border-white/10 text-slate-400 transition" title="Wartet"><i class="fa-regular fa-clock"></i></button>` : ''}
+                            ${t.status !== 'progress' ? `<button onclick="updateTransportStatus(${t.id}, 'progress')" class="text-xs w-8 h-8 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 transition" title="Unterwegs"><i class="fa-solid fa-person-walking-arrow-right"></i></button>` : ''}
+                            ${t.status !== 'done' ? `<button onclick="updateTransportStatus(${t.id}, 'done')" class="text-xs w-8 h-8 rounded-lg bg-helios-500/10 hover:bg-helios-500/20 border border-helios-500/30 text-helios-400 transition" title="Erledigt"><i class="fa-solid fa-check"></i></button>` : ''}
+                        </div>
+                        <button onclick="deleteTransport(${t.id})" class="text-slate-500 hover:text-red-400 transition w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        // Feature: Vitals
+        function copyVitals() {
+            const pat = document.getElementById('vitPatient').value;
+            const rr = document.getElementById('vitRR').value;
+            const hf = document.getElementById('vitHF').value;
+            const spo2 = document.getElementById('vitSpO2').value;
+            const temp = document.getElementById('vitTemp').value;
+            const misc = document.getElementById('vitMisc').value;
+
+            let text = "VITALWERTE:\n";
+            if(pat) text += `Patient: ${pat}\n`;
+            if(rr) text += `RR: ${rr} mmHg\n`;
+            if(hf) text += `HF: ${hf} /min\n`;
+            if(spo2) text += `SpO2: ${spo2} %\n`;
+            if(temp) text += `Temp: ${temp} °C\n`;
+            if(misc) text += `Zusatz: ${misc}\n`;
+            text += `Erfasst um: ${new Date().toLocaleTimeString('de-DE').substring(0,5)} Uhr`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('copyToast');
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 2000);
+            }).catch(err => {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const toast = document.getElementById('copyToast');
+                    toast.classList.remove('hidden');
+                    setTimeout(() => toast.classList.add('hidden'), 2000);
+                } catch (err) {
+                    console.error('Fallback failed', err);
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        function clearVitals() {
+            document.getElementById('vitPatient').value = '';
+            document.getElementById('vitRR').value = '';
+            document.getElementById('vitHF').value = '';
+            document.getElementById('vitSpO2').value = '';
+            document.getElementById('vitTemp').value = '';
+            document.getElementById('vitMisc').value = '';
+        }
+
+        // Feature: Notes
+        function saveNotes() {
+            appData.notes = document.getElementById('quickNotes').value;
+            saveData();
+        }
+
+    </script>
+</body>
+</html>
