@@ -31,7 +31,9 @@
                         'blob': 'blob 15s infinite',
                         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'pulse-red-glow': 'pulse-red-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'pulse-soft': 'pulse-soft 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                        'pulse-border-indigo': 'pulse-border-indigo 2s ease-in-out infinite',
+                        'pulse-border-amber': 'pulse-border-amber 2s ease-in-out infinite',
+                        'pulse-border-red': 'pulse-border-red 2s ease-in-out infinite'
                     },
                     keyframes: {
                         blob: {
@@ -48,9 +50,17 @@
                             '0%, 100%': { boxShadow: '0 0 15px rgba(239, 68, 68, 0.3)', borderColor: 'rgba(239, 68, 68, 0.4)', backgroundColor: 'rgba(239, 68, 68, 0.05)' },
                             '50%': { boxShadow: '0 0 35px rgba(239, 68, 68, 0.6)', borderColor: 'rgba(239, 68, 68, 0.9)', backgroundColor: 'rgba(239, 68, 68, 0.15)' },
                         },
-                        'pulse-soft': {
-                            '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.85' },
+                        'pulse-border-indigo': {
+                            '0%, 100%': { borderColor: 'rgba(99, 102, 241, 0.3)', boxShadow: '0 0 0px rgba(99, 102, 241, 0)' },
+                            '50%': { borderColor: 'rgba(99, 102, 241, 0.8)', boxShadow: '0 0 15px rgba(99, 102, 241, 0.5)' },
+                        },
+                        'pulse-border-amber': {
+                            '0%, 100%': { borderColor: 'rgba(245, 158, 11, 0.3)', boxShadow: '0 0 0px rgba(245, 158, 11, 0)' },
+                            '50%': { borderColor: 'rgba(245, 158, 11, 0.8)', boxShadow: '0 0 15px rgba(245, 158, 11, 0.5)' },
+                        },
+                        'pulse-border-red': {
+                            '0%, 100%': { borderColor: 'rgba(239, 68, 68, 0.3)', boxShadow: '0 0 0px rgba(239, 68, 68, 0)' },
+                            '50%': { borderColor: 'rgba(239, 68, 68, 0.8)', boxShadow: '0 0 15px rgba(239, 68, 68, 0.5)' },
                         }
                     }
                 }
@@ -336,9 +346,11 @@
             </div>
         </div>
 
-        <!-- Column 4: Task List -->
+        <!-- Column 4: Checkliste & Notizen -->
         <div class="flex flex-col gap-4 h-full lg:col-span-1">
-            <div class="glass-panel rounded-2xl flex flex-col h-full overflow-hidden">
+            
+            <!-- Checkliste (Top Half) -->
+            <div class="glass-panel rounded-2xl flex flex-col flex-1 overflow-hidden">
                 <div class="p-4 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/20 dark:bg-transparent">
                     <h2 class="font-bold flex items-center gap-2 text-slate-800 dark:text-white drop-shadow-sm">
                         <i class="fa-solid fa-list-check text-amber-500 dark:text-amber-400"></i> Checkliste
@@ -355,6 +367,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Notizen (Bottom Half) -->
+            <div class="glass-panel rounded-2xl flex flex-col flex-1 overflow-hidden">
+                <div class="p-4 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/20 dark:bg-transparent">
+                    <h2 class="font-bold flex items-center gap-2 text-slate-800 dark:text-white drop-shadow-sm">
+                        <i class="fa-regular fa-note-sticky text-yellow-500 dark:text-yellow-400"></i> Notizen
+                    </h2>
+                    <span class="text-[10px] text-slate-600 dark:text-slate-300 font-bold uppercase tracking-widest bg-white/40 dark:bg-white/10 px-2 py-1 rounded backdrop-blur-sm border border-white/50 dark:border-white/10">Auto Save</span>
+                </div>
+                <div class="p-4 flex-1 flex flex-col overflow-hidden bg-white/5 dark:bg-transparent">
+                    <textarea id="notesArea" placeholder="Schnelle Notizen, Übergabe-Infos..." class="w-full h-full p-3 rounded-lg glass-input outline-none text-slate-800 dark:text-white placeholder-slate-400 resize-none custom-scrollbar text-sm" oninput="saveNotes()"></textarea>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -364,7 +390,8 @@
         let appData = {
             timers: [],
             transports: [],
-            tasks: [] 
+            tasks: [],
+            notes: ""
         };
 
         // Audio Setup for Gong - Fix for Autoplay Policies
@@ -455,6 +482,9 @@
                 appData.timers = parsed.timers || [];
                 appData.transports = parsed.transports || [];
                 appData.tasks = parsed.tasks || [];
+                appData.notes = parsed.notes || "";
+
+                document.getElementById('notesArea').value = appData.notes;
 
                 renderTimers();
                 renderTransports();
@@ -464,8 +494,9 @@
 
         function clearAllData() {
             if(confirm('Achtung: Willst du wirklich alle Daten dieser Schicht löschen?')) {
-                appData = { timers: [], transports: [], tasks: [] };
+                appData = { timers: [], transports: [], tasks: [], notes: "" };
                 clearVitals();
+                document.getElementById('notesArea').value = "";
                 saveData();
                 renderTimers();
                 renderTransports();
@@ -629,6 +660,7 @@
                 
                 const display = document.querySelector(`.trans-timer-display[data-id="${t.id}"]`);
                 const progress = document.querySelector(`.trans-progress-bar[data-id="${t.id}"]`);
+                const transElement = document.querySelector(`.trans-item[data-id="${t.id}"]`);
 
                 if(display) {
                     if (t.isAsap) {
@@ -641,6 +673,11 @@
                             const percent = Math.min((elapsed / 1800000) * 100, 100); 
                             progress.style.width = `${percent}%`;
                         }
+                        
+                        if (transElement && t.status === 'waiting') {
+                            transElement.classList.add('animate-pulse-border-red');
+                            transElement.classList.remove('animate-pulse-border-indigo');
+                        }
                     } else {
                         const diff = t.targetMs - now;
                         if(diff <= 0) {
@@ -648,6 +685,11 @@
                             display.classList.add('text-red-600', 'dark:text-red-400');
                             display.classList.remove('text-indigo-700', 'dark:text-indigo-400');
                             if(progress) progress.style.width = '100%';
+                            
+                            if (transElement && t.status === 'waiting') {
+                                transElement.classList.add('animate-pulse-border-red');
+                                transElement.classList.remove('animate-pulse-border-indigo');
+                            }
                         } else {
                             display.innerText = formatTimeDiff(diff);
                             display.classList.remove('text-red-600', 'dark:text-red-400');
@@ -659,6 +701,11 @@
                                 const elapsed = now - t.id;
                                 const percent = Math.min(Math.max((elapsed / total) * 100, 0), 100);
                                 progress.style.width = `${percent}%`;
+                            }
+                            
+                            if (transElement && t.status === 'waiting') {
+                                transElement.classList.add('animate-pulse-border-indigo');
+                                transElement.classList.remove('animate-pulse-border-red');
                             }
                         }
                     }
@@ -736,19 +783,27 @@
             appData.transports.forEach(t => {
                 let statusColor = "bg-white/60 border-white/80 text-slate-800 dark:bg-slate-800/60 dark:border-white/20 dark:text-slate-200";
                 let badgeColor = "bg-white/80 text-slate-700 border-slate-300 dark:bg-black/40 dark:text-slate-300 dark:border-white/10";
-                let pulseClass = t.status !== 'done' ? "animate-pulse-soft" : "";
+                let pulseClass = ""; 
                 
                 if(t.status === 'progress') { 
-                    statusColor = "bg-amber-100/60 border-amber-300 text-amber-900 dark:bg-amber-900/40 dark:border-amber-500/50 dark:text-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.2)]"; 
+                    statusColor = "bg-amber-100/60 border-amber-300 text-amber-900 dark:bg-amber-900/40 dark:border-amber-500/50 dark:text-amber-100"; 
                     badgeColor = "bg-amber-200/80 text-amber-800 border-amber-400 dark:bg-amber-800/60 dark:text-amber-200 dark:border-amber-400/50";
-                }
-                if(t.status === 'done') { 
+                    pulseClass = "animate-pulse-border-amber";
+                } else if(t.status === 'done') { 
                     statusColor = "bg-helios-100/50 border-helios-300 text-helios-900 opacity-70 dark:bg-helios-900/30 dark:border-helios-500/30 dark:text-helios-100 dark:opacity-60"; 
                     badgeColor = "bg-helios-200/80 text-helios-800 border-helios-400 dark:bg-helios-800/50 dark:text-helios-300 dark:border-helios-500/50";
+                } else {
+                    // Initial pulse class (will be perfectly synced by updateTimerDisplays)
+                    if (t.isAsap || t.targetMs <= Date.now()) {
+                        pulseClass = "animate-pulse-border-red";
+                    } else {
+                        pulseClass = "animate-pulse-border-indigo";
+                    }
                 }
 
                 const el = document.createElement('div');
-                el.className = `p-3 rounded-xl border flex flex-col gap-2 transition-all duration-300 shadow-sm backdrop-blur-md relative overflow-hidden ${statusColor} ${pulseClass}`;
+                el.className = `trans-item p-3 rounded-xl border flex flex-col gap-2 transition-all duration-300 shadow-sm backdrop-blur-md relative overflow-hidden ${statusColor} ${pulseClass}`;
+                el.dataset.id = t.id;
                 
                 const timerHtml = t.status !== 'done' 
                     ? `<div class="font-mono text-sm font-bold trans-timer-display drop-shadow-sm" data-id="${t.id}">--:--</div>` 
@@ -864,6 +919,12 @@
             document.getElementById('vitSpO2').value = '';
             document.getElementById('vitTemp').value = '';
             document.getElementById('vitMisc').value = '';
+        }
+
+        // Feature: Notizen
+        function saveNotes() {
+            appData.notes = document.getElementById('notesArea').value;
+            saveData();
         }
 
         // Feature: Task List with Drag & Drop
