@@ -151,10 +151,17 @@
             </h1>
         </div>
         
-        <!-- Clock (Absolute Center) -->
+        <!-- Clock & Weather (Absolute Center) -->
         <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none">
             <div id="clock" class="text-3xl md:text-5xl font-bold font-mono text-helios-700 dark:text-white dark:text-glow-green tracking-tighter drop-shadow-md">00:00:00</div>
-            <div id="date" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 drop-shadow-sm">Datum</div>
+            <div class="flex items-center gap-3 mt-1">
+                <div id="date" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest drop-shadow-sm">Datum</div>
+                <div class="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-500"></div>
+                <!-- Weather Widget -->
+                <div id="weather" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest drop-shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                </div>
+            </div>
         </div>
 
         <!-- Controls (Right) -->
@@ -357,10 +364,37 @@
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         }
 
+        // Live Weather via Open-Meteo API (Koordinaten: Duisburg)
+        async function fetchWeather() {
+            try {
+                // Koordinaten Duisburg: Lat 51.4324, Lon 6.7651
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.4324&longitude=6.7651&current=temperature_2m,weather_code');
+                const data = await res.json();
+                const temp = Math.round(data.current.temperature_2m);
+                const code = data.current.weather_code;
+                
+                let iconClass = 'fa-sun text-yellow-500 dark:text-yellow-400'; 
+                if (code === 0) iconClass = 'fa-sun text-yellow-500 dark:text-yellow-400'; // Klar
+                else if (code >= 1 && code <= 3) iconClass = 'fa-cloud-sun text-slate-400 dark:text-slate-300'; // Bewölkt
+                else if (code >= 45 && code <= 48) iconClass = 'fa-smog text-slate-400 dark:text-slate-300'; // Nebel
+                else if (code >= 51 && code <= 67) iconClass = 'fa-cloud-rain text-blue-500 dark:text-blue-400'; // Regen
+                else if (code >= 71 && code <= 77) iconClass = 'fa-snowflake text-sky-400 dark:text-sky-300'; // Schnee
+                else if (code >= 80 && code <= 82) iconClass = 'fa-cloud-showers-heavy text-blue-600 dark:text-blue-500'; // Schauer
+                else if (code >= 95 && code <= 99) iconClass = 'fa-cloud-bolt text-purple-600 dark:text-purple-400'; // Gewitter
+
+                document.getElementById('weather').innerHTML = `<i class="fa-solid ${iconClass}"></i> ${temp}°C`;
+            } catch (err) {
+                console.log('Wetterabruf fehlgeschlagen', err);
+                document.getElementById('weather').innerHTML = `<i class="fa-solid fa-cloud"></i> --°C`;
+            }
+        }
+
         // Init & Loop
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             startClock();
+            fetchWeather();
+            setInterval(fetchWeather, 1800000); // Wetter alle 30 Min aktualisieren
             setInterval(updateAllTimers, 1000);
         });
 
@@ -520,7 +554,7 @@
                     
                     ${!timer.isOverdue ? `
                     <div class="absolute bottom-0 left-0 h-1.5 bg-slate-200/50 dark:bg-helios-900/50 w-full">
-                        <div class="bg-helios-500 dark:bg-helios-400 h-full progress-bar shadow-[0_0_10px_rgba(16,185,129,0.8)] transition-all duration-1000 ease-linear" data-id="${timer.id}"></div>
+                        <div class="bg-helios-500 dark:bg-helios-400 h-full progress-bar shadow-[0_0_10px_rgba(16,185,129,0.8)] transition-all duration-1000 ease-linear" data-id="${timer.id}" style="width: 0%;"></div>
                     </div>` : `
                     <div class="absolute bottom-0 left-0 h-1.5 bg-red-500 w-full shadow-[0_0_15px_rgba(239,68,68,1)]"></div>
                     `}
@@ -552,26 +586,43 @@
                 }
             });
 
-            // Update Transport Timers
+            // Update Transport Timers & Bars
             appData.transports.forEach(t => {
                 if (t.status === 'done') return;
                 
                 const display = document.querySelector(`.trans-timer-display[data-id="${t.id}"]`);
+                const progress = document.querySelector(`.trans-progress-bar[data-id="${t.id}"]`);
+
                 if(display) {
                     if (t.isAsap) {
                         const elapsed = now - t.targetMs;
                         display.innerText = "+" + formatTimeDiff(elapsed);
                         display.classList.add('text-red-600', 'dark:text-red-400');
+                        
+                        // Fake progress bar filling up over 30 mins to show urgency for ASAP
+                        if(progress) {
+                            const percent = Math.min((elapsed / 1800000) * 100, 100); 
+                            progress.style.width = `${percent}%`;
+                        }
                     } else {
                         const diff = t.targetMs - now;
                         if(diff <= 0) {
                             display.innerText = "+" + formatTimeDiff(Math.abs(diff));
                             display.classList.add('text-red-600', 'dark:text-red-400');
                             display.classList.remove('text-indigo-700', 'dark:text-indigo-400');
+                            if(progress) progress.style.width = '100%';
                         } else {
                             display.innerText = formatTimeDiff(diff);
                             display.classList.remove('text-red-600', 'dark:text-red-400');
                             display.classList.add('text-indigo-700', 'dark:text-indigo-400');
+                            
+                            // Real progress bar calculation based on start and target
+                            if(progress) {
+                                const total = t.targetMs - t.id; // t.id is creation timestamp
+                                const elapsed = now - t.id;
+                                const percent = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+                                progress.style.width = `${percent}%`;
+                            }
                         }
                     }
                 }
@@ -659,30 +710,48 @@
                 }
 
                 const el = document.createElement('div');
-                el.className = `p-3 rounded-xl border flex flex-col gap-2 transition-all duration-300 shadow-sm backdrop-blur-md ${statusColor}`;
+                el.className = `p-3 rounded-xl border flex flex-col gap-2 transition-all duration-300 shadow-sm backdrop-blur-md relative overflow-hidden ${statusColor}`;
                 
                 const timerHtml = t.status !== 'done' 
                     ? `<div class="font-mono text-sm font-bold trans-timer-display drop-shadow-sm" data-id="${t.id}">--:--</div>` 
                     : `<div class="font-mono text-sm font-bold text-slate-500 dark:text-slate-400">Erledigt</div>`;
 
+                // Calculate Progress Bar DOM
+                let progressBarHtml = '';
+                if (t.status !== 'done') {
+                    if (!t.isAsap) {
+                        progressBarHtml = `
+                            <div class="absolute bottom-0 left-0 h-1.5 bg-slate-200/50 dark:bg-indigo-900/50 w-full rounded-b-xl overflow-hidden">
+                                <div class="bg-indigo-500 dark:bg-indigo-400 h-full trans-progress-bar shadow-[0_0_10px_rgba(99,102,241,0.8)] transition-all duration-1000 ease-linear" data-id="${t.id}" style="width: 0%;"></div>
+                            </div>
+                        `;
+                    } else {
+                        progressBarHtml = `
+                            <div class="absolute bottom-0 left-0 h-1.5 bg-slate-200/50 dark:bg-red-900/50 w-full rounded-b-xl overflow-hidden">
+                                <div class="bg-red-500 dark:bg-red-400 h-full trans-progress-bar shadow-[0_0_10px_rgba(239,68,68,0.8)] transition-all duration-1000 ease-linear" data-id="${t.id}" style="width: 0%;"></div>
+                            </div>
+                        `;
+                    }
+                }
+
                 el.innerHTML = `
-                    <div class="flex justify-between items-start">
+                    <div class="flex justify-between items-start relative z-10">
                         <div class="font-bold text-sm drop-shadow-sm">${t.patient}</div>
                         <div class="flex items-center gap-2">
                             ${timerHtml}
                             <div class="font-mono text-xs font-bold px-2 py-0.5 rounded border shadow-sm ${badgeColor}">${t.timeString}</div>
                         </div>
                     </div>
-                    <div class="text-sm font-bold opacity-90 mt-1"><i class="fa-solid fa-location-dot mr-1.5"></i> ${t.ziel}</div>
+                    <div class="text-sm font-bold opacity-90 mt-1 relative z-10"><i class="fa-solid fa-location-dot mr-1.5"></i> ${t.ziel}</div>
                     
-                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-black/10 dark:border-white/10">
+                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-black/10 dark:border-white/10 relative z-10">
                         <div class="flex gap-1">
-                            ${t.status !== 'waiting' ? `<button onclick="updateTransportStatus(${t.id}, 'waiting')" class="text-xs w-8 h-8 rounded-lg bg-white/60 hover:bg-white border border-white/80 text-slate-600 dark:bg-black/30 dark:hover:bg-slate-700 dark:border-white/20 dark:text-slate-300 transition shadow-sm" title="Wartet"><i class="fa-regular fa-clock"></i></button>` : ''}
                             ${t.status !== 'progress' ? `<button onclick="updateTransportStatus(${t.id}, 'progress')" class="text-xs w-8 h-8 rounded-lg bg-amber-200/60 hover:bg-amber-300 border border-amber-300 text-amber-700 dark:bg-amber-500/30 dark:hover:bg-amber-500/50 dark:border-amber-500/40 dark:text-amber-300 transition shadow-sm" title="Unterwegs"><i class="fa-solid fa-person-walking-arrow-right"></i></button>` : ''}
                             ${t.status !== 'done' ? `<button onclick="updateTransportStatus(${t.id}, 'done')" class="text-xs w-8 h-8 rounded-lg bg-helios-200/60 hover:bg-helios-300 border border-helios-300 text-helios-700 dark:bg-helios-500/30 dark:hover:bg-helios-500/50 dark:border-helios-500/40 dark:text-helios-300 transition shadow-sm" title="Erledigt"><i class="fa-solid fa-check"></i></button>` : ''}
                         </div>
                         <button onclick="deleteTransport(${t.id})" class="text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/50 dark:hover:bg-white/10"><i class="fa-solid fa-trash"></i></button>
                     </div>
+                    ${progressBarHtml}
                 `;
                 list.appendChild(el);
             });
