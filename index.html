@@ -281,13 +281,6 @@
                         <input type="text" id="vitAllergies" placeholder="Keine bekannt / Penicillin..." class="w-full text-sm p-2.5 rounded-lg bg-red-50/50 dark:bg-red-900/20 border border-red-300 dark:border-red-500/40 focus:border-red-500 outline-none text-slate-800 dark:text-white backdrop-blur-md shadow-sm transition placeholder-red-300 dark:placeholder-red-400/50">
                     </div>
 
-                    <!-- Sepsis Alert Banner (Hidden by default) -->
-                    <div id="sepsisAlert" class="hidden text-center bg-red-500/20 border-2 border-red-500 p-3 rounded-lg animate-pulse-red-glow">
-                        <div class="text-red-600 dark:text-red-400 font-black tracking-widest uppercase text-sm drop-shadow-sm">
-                            <i class="fa-solid fa-skull-crossbones mr-2"></i> Cave: Sepsis Verdacht!
-                        </div>
-                    </div>
-
                     <div class="grid grid-cols-3 gap-3">
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">RR mmHg</label>
@@ -420,30 +413,6 @@
             }
         }
 
-        // Sepsis Check Logic
-        function checkSepsis() {
-            let score = 0;
-            const rrStr = document.getElementById('vitRR').value;
-            const hf = parseInt(document.getElementById('vitHF').value);
-            const af = parseInt(document.getElementById('vitAF').value);
-            const temp = parseFloat(document.getElementById('vitTemp').value);
-
-            if (rrStr && rrStr.includes('/')) {
-                const sysRR = parseInt(rrStr.split('/')[0]);
-                if (sysRR <= 100) score++;
-            }
-            if (hf && hf > 90) score++;
-            if (af && af >= 22) score++;
-            if (temp && (temp < 36.0 || temp > 38.0)) score++;
-
-            const alertDiv = document.getElementById('sepsisAlert');
-            if (score >= 2) {
-                alertDiv.classList.remove('hidden');
-            } else {
-                alertDiv.classList.add('hidden');
-            }
-        }
-
         // Init & Loop
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
@@ -451,12 +420,6 @@
             fetchWeather();
             setInterval(fetchWeather, 1800000); 
             setInterval(updateAllTimers, 1000);
-
-            // Sepsis Trigger an die Inputs binden
-            document.getElementById('vitRR').addEventListener('input', checkSepsis);
-            document.getElementById('vitHF').addEventListener('input', checkSepsis);
-            document.getElementById('vitAF').addEventListener('input', checkSepsis);
-            document.getElementById('vitTemp').addEventListener('input', checkSepsis);
         });
 
         function startClock() {
@@ -871,7 +834,6 @@
             document.getElementById('vitSpO2').value = '';
             document.getElementById('vitTemp').value = '';
             document.getElementById('vitMisc').value = '';
-            checkSepsis();
         }
 
         // Feature: Task List with Drag & Drop
