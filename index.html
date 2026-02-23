@@ -132,6 +132,8 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden relative bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-fuchsia-50">
 
+    <audio id="gongSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
     <!-- Massive Liquid Background Blobs -->
     <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none transition-opacity duration-700 opacity-60 dark:opacity-40">
         <div class="absolute top-[-15%] left-[-10%] w-[40rem] h-[40rem] bg-helios-400 dark:bg-helios-500 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[120px] dark:blur-[140px] animate-blob"></div>
@@ -279,22 +281,35 @@
                         <input type="text" id="vitAllergies" placeholder="Keine bekannt / Penicillin..." class="w-full text-sm p-2.5 rounded-lg bg-red-50/50 dark:bg-red-900/20 border border-red-300 dark:border-red-500/40 focus:border-red-500 outline-none text-slate-800 dark:text-white backdrop-blur-md shadow-sm transition placeholder-red-300 dark:placeholder-red-400/50">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <!-- Sepsis Alert Banner (Hidden by default) -->
+                    <div id="sepsisAlert" class="hidden text-center bg-red-500/20 border-2 border-red-500 p-3 rounded-lg animate-pulse-red-glow">
+                        <div class="text-red-600 dark:text-red-400 font-black tracking-widest uppercase text-sm drop-shadow-sm">
+                            <i class="fa-solid fa-skull-crossbones mr-2"></i> Cave: Sepsis Verdacht!
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">RR mmHg</label>
-                            <input type="text" id="vitRR" placeholder="120/80" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
+                            <input type="text" id="vitRR" placeholder="120/80" class="w-full text-base font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">HF /min</label>
-                            <input type="number" id="vitHF" placeholder="80" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
+                            <input type="number" id="vitHF" placeholder="80" class="w-full text-base font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
                         </div>
                         <div>
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">AF /min</label>
+                            <input type="number" id="vitAF" placeholder="15" class="w-full text-base font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">SpO2 %</label>
-                            <input type="number" id="vitSpO2" placeholder="98" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
+                            <input type="number" id="vitSpO2" placeholder="98" class="w-full text-base font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block tracking-wide">Temp °C</label>
-                            <input type="number" step="0.1" id="vitTemp" placeholder="37.0" class="w-full text-lg font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
+                            <input type="number" step="0.1" id="vitTemp" placeholder="37.0" class="w-full text-base font-mono p-2.5 rounded-lg glass-input outline-none text-center text-helios-700 dark:text-helios-400 placeholder-slate-300 dark:placeholder-slate-600 font-bold">
                         </div>
                     </div>
                     <div>
@@ -346,16 +361,33 @@
             tasks: [] 
         };
 
-        // Audio Setup for Gong
-        // Ein klarer, professioneller Gong / Notification Sound
-        const gongAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-        gongAudio.volume = 0.8;
+        // Audio Setup for Gong - Fix for Autoplay Policies
+        let audioUnlocked = false;
 
         function playGong() {
-            gongAudio.play().catch(err => {
-                console.log("Audio Playback blockiert durch Browser Policy. Klicke einmal auf die Seite, um Sounds zu aktivieren.", err);
-            });
+            const gong = document.getElementById('gongSound');
+            if(gong) {
+                gong.volume = 1.0;
+                gong.play().catch(err => {
+                    console.log("Audio Playback immer noch blockiert. Bitte irgendwo ins Dashboard klicken.", err);
+                });
+            }
         }
+
+        // Entriegelt das Audio Element beim ersten Klick im Dashboard
+        document.body.addEventListener('click', function unlockAudio() {
+            if(!audioUnlocked) {
+                const gong = document.getElementById('gongSound');
+                if(gong) {
+                    gong.volume = 0; // Stumm abspielen
+                    gong.play().then(() => {
+                        gong.pause();
+                        gong.currentTime = 0;
+                        audioUnlocked = true;
+                    }).catch(e => console.log("Warte auf stärkere Interaktion für Audio Unlock."));
+                }
+            }
+        }, { once: true });
 
         // Theme Toggle Logic
         function toggleTheme() {
@@ -367,20 +399,19 @@
         // Live Weather via Open-Meteo API (Koordinaten: Duisburg)
         async function fetchWeather() {
             try {
-                // Koordinaten Duisburg: Lat 51.4324, Lon 6.7651
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.4324&longitude=6.7651&current=temperature_2m,weather_code');
                 const data = await res.json();
                 const temp = Math.round(data.current.temperature_2m);
                 const code = data.current.weather_code;
                 
                 let iconClass = 'fa-sun text-yellow-500 dark:text-yellow-400'; 
-                if (code === 0) iconClass = 'fa-sun text-yellow-500 dark:text-yellow-400'; // Klar
-                else if (code >= 1 && code <= 3) iconClass = 'fa-cloud-sun text-slate-400 dark:text-slate-300'; // Bewölkt
-                else if (code >= 45 && code <= 48) iconClass = 'fa-smog text-slate-400 dark:text-slate-300'; // Nebel
-                else if (code >= 51 && code <= 67) iconClass = 'fa-cloud-rain text-blue-500 dark:text-blue-400'; // Regen
-                else if (code >= 71 && code <= 77) iconClass = 'fa-snowflake text-sky-400 dark:text-sky-300'; // Schnee
-                else if (code >= 80 && code <= 82) iconClass = 'fa-cloud-showers-heavy text-blue-600 dark:text-blue-500'; // Schauer
-                else if (code >= 95 && code <= 99) iconClass = 'fa-cloud-bolt text-purple-600 dark:text-purple-400'; // Gewitter
+                if (code === 0) iconClass = 'fa-sun text-yellow-500 dark:text-yellow-400';
+                else if (code >= 1 && code <= 3) iconClass = 'fa-cloud-sun text-slate-400 dark:text-slate-300';
+                else if (code >= 45 && code <= 48) iconClass = 'fa-smog text-slate-400 dark:text-slate-300';
+                else if (code >= 51 && code <= 67) iconClass = 'fa-cloud-rain text-blue-500 dark:text-blue-400';
+                else if (code >= 71 && code <= 77) iconClass = 'fa-snowflake text-sky-400 dark:text-sky-300';
+                else if (code >= 80 && code <= 82) iconClass = 'fa-cloud-showers-heavy text-blue-600 dark:text-blue-500';
+                else if (code >= 95 && code <= 99) iconClass = 'fa-cloud-bolt text-purple-600 dark:text-purple-400';
 
                 document.getElementById('weather').innerHTML = `<i class="fa-solid ${iconClass}"></i> ${temp}°C`;
             } catch (err) {
@@ -389,13 +420,43 @@
             }
         }
 
+        // Sepsis Check Logic
+        function checkSepsis() {
+            let score = 0;
+            const rrStr = document.getElementById('vitRR').value;
+            const hf = parseInt(document.getElementById('vitHF').value);
+            const af = parseInt(document.getElementById('vitAF').value);
+            const temp = parseFloat(document.getElementById('vitTemp').value);
+
+            if (rrStr && rrStr.includes('/')) {
+                const sysRR = parseInt(rrStr.split('/')[0]);
+                if (sysRR <= 100) score++;
+            }
+            if (hf && hf > 90) score++;
+            if (af && af >= 22) score++;
+            if (temp && (temp < 36.0 || temp > 38.0)) score++;
+
+            const alertDiv = document.getElementById('sepsisAlert');
+            if (score >= 2) {
+                alertDiv.classList.remove('hidden');
+            } else {
+                alertDiv.classList.add('hidden');
+            }
+        }
+
         // Init & Loop
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             startClock();
             fetchWeather();
-            setInterval(fetchWeather, 1800000); // Wetter alle 30 Min aktualisieren
+            setInterval(fetchWeather, 1800000); 
             setInterval(updateAllTimers, 1000);
+
+            // Sepsis Trigger an die Inputs binden
+            document.getElementById('vitRR').addEventListener('input', checkSepsis);
+            document.getElementById('vitHF').addEventListener('input', checkSepsis);
+            document.getElementById('vitAF').addEventListener('input', checkSepsis);
+            document.getElementById('vitTemp').addEventListener('input', checkSepsis);
         });
 
         function startClock() {
@@ -764,6 +825,7 @@
             const alg = document.getElementById('vitAllergies').value;
             const rr = document.getElementById('vitRR').value;
             const hf = document.getElementById('vitHF').value;
+            const af = document.getElementById('vitAF').value;
             const spo2 = document.getElementById('vitSpO2').value;
             const temp = document.getElementById('vitTemp').value;
             const misc = document.getElementById('vitMisc').value;
@@ -773,6 +835,7 @@
             if(alg) text += `ALLERGIEN: ${alg.toUpperCase()}\n`;
             if(rr) text += `RR: ${rr} mmHg\n`;
             if(hf) text += `HF: ${hf} /min\n`;
+            if(af) text += `AF: ${af} /min\n`;
             if(spo2) text += `SpO2: ${spo2} %\n`;
             if(temp) text += `Temp: ${temp} °C\n`;
             if(misc) text += `Zusatz: ${misc}\n`;
@@ -804,9 +867,11 @@
             document.getElementById('vitAllergies').value = '';
             document.getElementById('vitRR').value = '';
             document.getElementById('vitHF').value = '';
+            document.getElementById('vitAF').value = '';
             document.getElementById('vitSpO2').value = '';
             document.getElementById('vitTemp').value = '';
             document.getElementById('vitMisc').value = '';
+            checkSepsis();
         }
 
         // Feature: Task List with Drag & Drop
